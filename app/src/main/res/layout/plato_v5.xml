@@ -132,8 +132,6 @@
                 android:textSize="16sp"
                 android:padding="8dp"
                 android:textAlignment="center" />
-
-            <!-- Agrega más experiencias aquí según sea necesario desde el backend -->
         </LinearLayout>
     </ScrollView>
 

@@ -107,7 +107,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="150dp"
                             android:scaleType="centerCrop"
-                            android:src="" />
+                            android:src="@drawable/logoapp" />
 
                         <TextView
                             android:id="@+id/restaurantName1"
@@ -164,7 +164,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="150dp"
                             android:scaleType="centerCrop"
-                            android:src="" /> <!-- Cambia esto por la imagen deseada -->
+                            android:src="@drawable/logoapp" /> <!-- Cambia esto por la imagen deseada -->
 
                         <TextView
                             android:id="@+id/restaurantName2"
@@ -222,7 +222,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="150dp"
                             android:scaleType="centerCrop"
-                            android:src="" /> <!-- Cambia esto por la imagen deseada -->
+                            android:src="@drawable/logoapp" /> <!-- Cambia esto por la imagen deseada -->
 
                         <TextView
                             android:id="@+id/restaurantName3"
