@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:text="Nearby Restaurants"
                 android:textColor="#000000"
-                android:background="#FFFFFFF"
+                android:background="@drawable/rounded_border"
                 android:padding="16dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1" />
@@ -264,4 +264,12 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
+
+    <include
+        android:id="@+id/include_bottom_nav"
+        layout="@layout/bottom_nav_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
