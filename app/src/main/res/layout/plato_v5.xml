@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/triangle_background"
+    tools:context=".DishDetailActivity">
+
+    <!-- Botón para regresar -->
+    <ImageView
+        android:id="@+id/back_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- Botón de añadir (parte superior derecha) -->
+    <ImageView
+        android:id="@+id/add_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- Imagen del platillo -->
+    <ImageView
+        android:id="@+id/dish_image"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@id/back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        android:background="@drawable/rounded_border"
+        android:padding="2dp" />
+
+    <!-- Título del platillo -->
+    <TextView
+        android:id="@+id/dish_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sushi Rock n Roll"
+        android:textStyle="bold"
+        android:textSize="22sp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/dish_image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- Precio del platillo -->
+    <TextView
+        android:id="@+id/dish_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="$19.000"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/dish_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Descripción del platillo -->
+    <TextView
+        android:id="@+id/dish_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Descripción del platillo."
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/dish_price"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- Título de la sección de experiencias -->
+    <TextView
+        android:id="@+id/experience_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Experiencias"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/dish_description"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="16dp" />
+
+    <!-- Botón de añadir en la sección de experiencias -->
+    <ImageView
+        android:id="@+id/add_experience_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/experience_title"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Contenedor scrollable para experiencias -->
+    <ScrollView
+        android:id="@+id/experience_scroll"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toBottomOf="@id/experience_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp"
+        android:background="@drawable/experience_background">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <!-- Ejemplo de una experiencia -->
+            <TextView
+                android:id="@+id/experience_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="¡El Sushi Rock n Roll fue una verdadera revelación!"
+                android:background="@drawable/experience_background"
+                android:textSize="16sp"
+                android:padding="8dp"
+                android:textAlignment="center" />
+
+            <!-- Agrega más experiencias aquí según sea necesario desde el backend -->
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Barra de navegación inferior (ya creada y reutilizada) -->
+    <include
+        layout="@layout/bottom_nav_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

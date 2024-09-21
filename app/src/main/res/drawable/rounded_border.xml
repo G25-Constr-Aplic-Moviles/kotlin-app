@@ -1,0 +1,15 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Fondo transparente para que solo se vea el borde -->
+    <solid android:color="@android:color/transparent" />
+
+    <!-- Bordes redondeados -->
+    <corners android:radius="16dp" />
+
+    <!-- Borde de color negro -->
+    <stroke
+        android:width="2dp"
+        android:color="#000000" /> <!-- Color negro para el borde -->
+
+</shape>
