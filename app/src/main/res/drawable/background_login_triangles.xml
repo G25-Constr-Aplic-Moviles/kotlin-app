@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Fondo principal -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F97A87" /> <!-- Color principal #F97A87 -->
+        </shape>
+    </item>
+
+    <!-- Triángulo superior derecho -->
+    <item>
+        <rotate
+            android:fromDegrees="45"
+            android:pivotX="100%"
+            android:pivotY="0%">
+            <shape android:shape="rectangle">
+                <solid android:color="#FE0E1B" /> <!-- Triángulo color #FE0E1B -->
+            </shape>
+        </rotate>
+    </item>
+
+    <!-- Triángulo inferior izquierdo -->
+    <item>
+        <rotate
+            android:fromDegrees="-45"
+            android:pivotX="0%"
+            android:pivotY="100%">
+            <shape android:shape="rectangle">
+                <solid android:color="#FE0E1B" /> <!-- Triángulo color #FE0E1B -->
+            </shape>
+        </rotate>
+    </item>
+
+</layer-list>
