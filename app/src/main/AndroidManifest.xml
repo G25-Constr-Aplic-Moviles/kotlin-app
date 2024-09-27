@@ -17,6 +17,9 @@
             android:name=".ResenasActivity"
             android:exported="true"/>
         <activity
+            android:name=".RegisterActivity"
+            android:exported="true"/>
+        <activity
             android:name=".RestaurantListActivity"
             android:exported="true"/>
 
