@@ -1,5 +1,6 @@
 package com.example.gastroandes.network
 
+import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -11,4 +12,8 @@ interface ApiService {
     // Método para obtener los detalles de un restaurante específico por su ID
     @GET("/restaurant/{restaurant_id}")
     suspend fun getRestauranteDetail(@Path("restaurant_id") id: Int): Restaurante
+
+    @GET("/menu_item/{restaurant_id}")
+    suspend fun getMenuItemByRestaurant(@Path("restaurant_id") id: Int): List<MenuItem>
+
 }

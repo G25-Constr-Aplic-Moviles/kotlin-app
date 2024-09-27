@@ -26,35 +26,98 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Imagen del restaurante -->
-            <ImageView
-                android:id="@+id/restaurant_image"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:src="@drawable/ic_launcher_foreground"
-                android:scaleType="centerCrop"
-                android:contentDescription="Restaurant image" />
+                android:layout_height="200dp">
+
+                <!-- Imagen del restaurante -->
+                <ImageView
+                    android:id="@+id/restaurant_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:src="@drawable/ic_launcher_foreground"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="Restaurant image" />
+
+                <!-- Botón de regreso superpuesto -->
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_back"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Botón de regreso"
+                    android:layout_gravity="top|start"
+                    android:padding="16dp" />
+            </FrameLayout>
 
             <!-- Título del restaurante -->
-            <TextView
-                android:id="@+id/restaurant_title"
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nombre del Restaurante $$$"
-                android:textStyle="bold"
-                android:textSize="24sp"
-                android:padding="16dp" />
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+
+                <!-- TextView para el nombre del restaurante -->
+                <TextView
+                    android:id="@+id/restaurant_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre del Restaurante"
+                    android:textStyle="bold"
+                    android:textSize="24sp"
+                    android:layout_weight="1" />
+
+                <!-- TextView para el indicador de costo -->
+                <TextView
+                    android:id="@+id/restaurant_cost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$$$"
+                    android:textStyle="bold"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#000000" />
 
             <!-- Sección de Menú -->
-            <TextView
-                android:id="@+id/menu_section"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Menú"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp">
+
+                <!-- Tu TextView existente -->
+                <TextView
+                    android:id="@+id/menu_section"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menú"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                     />
+
+                <!-- Espacio flexible para empujar el botón al extremo derecho -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <!-- Botón de color azul -->
+                <Button
+                    android:id="@+id/menu_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menú completo"
+                    android:textColor="#0000FF"
+                    android:background="@android:color/transparent" /> <!-- Color azul -->
+            </LinearLayout>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -71,6 +134,7 @@
 
                     <!-- Card 1 -->
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/dish1"
                         android:layout_width="200dp"
                         android:layout_height="wrap_content"
                         android:layout_margin="8dp"
@@ -95,6 +159,7 @@
 
                             <!-- Detalles del platillo -->
                             <TextView
+                                android:id="@+id/name1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Sushi Rock n Roll"
@@ -103,6 +168,7 @@
                                 android:paddingTop="8dp" />
 
                             <TextView
+                                android:id="@+id/price1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="$19.000"
@@ -114,6 +180,7 @@
 
                     <!-- Card 2 (ejemplo) -->
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/dish2"
                         android:layout_width="200dp"
                         android:layout_height="wrap_content"
                         android:layout_margin="8dp"
@@ -138,6 +205,7 @@
 
                             <!-- Detalles del platillo -->
                             <TextView
+                                android:id="@+id/name2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Arroz con Pollo"
@@ -146,6 +214,54 @@
                                 android:paddingTop="8dp" />
 
                             <TextView
+                                android:id="@+id/price2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="$21.000"
+                                android:textStyle="bold"
+                                android:textColor="@android:color/holo_green_dark"
+                                android:paddingTop="4dp" />
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <!-- Card 3 (ejemplo) -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/dish3"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        app:cardElevation="4dp"
+                        app:cardCornerRadius="12dp"
+                        android:background="@drawable/rounded_border">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+
+                            <!-- Imagen del platillo del menú -->
+                            <ImageView
+                                android:id="@+id/menu_item_image_3"
+                                android:layout_width="match_parent"
+                                android:layout_height="150dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_launcher_foreground"
+                                android:scaleType="centerCrop" />
+
+                            <!-- Detalles del platillo -->
+                            <TextView
+                                android:id="@+id/name3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Arroz con Pollo"
+                                android:textStyle="bold"
+                                android:textSize="16sp"
+                                android:paddingTop="8dp" />
+
+                            <TextView
+                                android:id="@+id/price3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="$21.000"
@@ -154,57 +270,97 @@
                                 android:paddingTop="4dp" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
-
-                    <!-- Puedes agregar más cards aquí -->
-
                 </LinearLayout>
             </HorizontalScrollView>
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="20dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/resenias_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="#F44336"
+                    android:gravity="center_vertical"
+                    android:padding="8dp">
+
+                    <!-- TextView de "Reseñas" -->
+                    <TextView
+                        android:id="@+id/resenia_section"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reseñas"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#FFFFFF"
+                         />
+
+                    <!-- Espacio flexible para empujar el botón al extremo derecho -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <!-- Botón para añadir reseñas -->
+                    <ImageButton
+                        android:id="@+id/btn_add_resenia"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_add"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Añadir reseña"
+                        android:tint="#FFFFFF"
+                        android:padding="8dp" />
+            </LinearLayout>
+
+            <!-- ScrollView con las experiencias -->
+                <ScrollView
+                    android:id="@+id/experience_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <!-- LinearLayout interno para las experiencias -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Ejemplo de una experiencia -->
+                        <TextView
+                            android:id="@+id/experience_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:background="@drawable/experience_background"
+                            android:textSize="16sp"
+                            android:padding="8dp"
+                            android:textAlignment="center" />
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <TextView
-                android:id="@+id/resenia_section"
+                android:id="@+id/map_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Reseñas"
+                android:text="Ubicación"
                 android:textStyle="bold"
                 android:textSize="18sp"
                 android:paddingStart="16dp"
-                android:paddingTop="8dp" />
-
-            <ScrollView
-                android:id="@+id/experience_scroll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-
-                    <!-- Ejemplo de una experiencia -->
-                    <TextView
-                        android:id="@+id/experience_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="¡El Sushi Rock n Roll fue una verdadera revelación!"
-                        android:background="@drawable/experience_background"
-                        android:textSize="16sp"
-                        android:padding="8dp"
-                        android:textAlignment="center" />
-
-                    <!-- Ejemplo de una experiencia -->
-                    <TextView
-                        android:id="@+id/experience_text2"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Odio Moviles"
-                        android:background="@drawable/experience_background"
-                        android:textSize="16sp"
-                        android:padding="8dp"
-                        android:textAlignment="center" />
-                </LinearLayout>
-            </ScrollView>
+                android:paddingTop="16dp" />
 
             <!-- Placeholder para el mapa -->
             <fragment

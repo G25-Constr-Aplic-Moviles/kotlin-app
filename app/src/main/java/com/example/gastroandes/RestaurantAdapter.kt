@@ -1,5 +1,6 @@
 package com.example.gastroandes
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +44,14 @@ class RestaurantAdapter(private val restaurantList: List<Restaurante>) : Recycle
             withContext(Dispatchers.Main) {
                 holder.restaurantImage.setImageBitmap(bitmap)
             }
+        }
+
+        // Configurar el click listener para cada restaurante
+        holder.itemView.setOnClickListener {
+            val context = holder.itemView.context
+            val intent = Intent(context, RestaurantDetailActivity::class.java)
+            intent.putExtra("RESTAURANTE_ID", restaurant.restaurant_id)
+            context.startActivity(intent)
         }
     }
 
