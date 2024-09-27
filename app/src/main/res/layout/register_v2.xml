@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_login_triangles"
-    tools:context=".MainActivity">
+    tools:context=".RegisterActivity">
 
 
     <ImageView
@@ -93,7 +93,7 @@
 
             <!-- Botón de login -->
             <Button
-                android:id="@+id/login_button"
+                android:id="@+id/register_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -105,5 +105,16 @@
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="¿Ya tienes una cuenta? Login"
+        android:textColor="#000000"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/login_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
