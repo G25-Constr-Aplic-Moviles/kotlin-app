@@ -57,4 +57,7 @@ dependencies {
     implementation(libs.coroutines.android)
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.viewmodel)
+    implementation(libs.play.services.location)
+
+
 }
