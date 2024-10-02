@@ -13,7 +13,7 @@ object RetrofitInstance {
 
     private val usersRetrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/") // Emulador de Android apunta a localhost del host
+            .baseUrl("https://moviles-users-2476d1fe1bb5.herokuapp.com") // Emulador de Android apunta a localhost del host
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -21,7 +21,7 @@ object RetrofitInstance {
     // Nueva instancia para el servicio de analíticas
     private val analyticsRetrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:5000/") // Apunta al servicio Flask local
+            .baseUrl("https://analyticservice-553a4e950222.herokuapp.com") // Apunta al servicio Flask local
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
