@@ -33,6 +33,9 @@
             android:name=".NearbyRestaurantsActivity"
             android:exported="true" />
         <activity
+            android:name=".RestaurantMenuActivity"
+            android:exported="true" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

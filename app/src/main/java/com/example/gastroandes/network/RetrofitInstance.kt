@@ -13,7 +13,15 @@ object RetrofitInstance {
 
     private val usersRetrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:3000/")
+            .baseUrl("http://10.0.2.2:3000/") // Emulador de Android apunta a localhost del host
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    // Nueva instancia para el servicio de analíticas
+    private val analyticsRetrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:5000/") // Apunta al servicio Flask local
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -24,5 +32,10 @@ object RetrofitInstance {
 
     val usersApi: ApiService by lazy {
         usersRetrofit.create(ApiService::class.java)
+    }
+
+    // API para el servicio de analíticas
+    val analyticsApi: ApiService by lazy {
+        analyticsRetrofit.create(ApiService::class.java)
     }
 }

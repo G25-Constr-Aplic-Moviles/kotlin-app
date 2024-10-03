@@ -26,13 +26,19 @@ class RestaurantListActivity : AppCompatActivity() {
         // Encuentra el ImageButton
         val locationButton: ImageButton = findViewById(R.id.location_image_button)
 
-        // Establece el listener para el clic
         locationButton.setOnClickListener {
+            // Captura el tiempo de inicio
+            val startTime = System.currentTimeMillis()
+
             // Crea un intent para navegar a la nueva actividad
             val intent = Intent(this, NearbyRestaurantsActivity::class.java)
-            startActivity(intent)  // Inicia la nueva actividad
-        }
 
+            // Añadir el tiempo de inicio al intent
+            intent.putExtra("startTime", startTime)
+
+            // Inicia la nueva actividad
+            startActivity(intent)
+        }
         recyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 

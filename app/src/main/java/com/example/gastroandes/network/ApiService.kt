@@ -5,11 +5,18 @@ import com.example.gastroandes.model.AuthResponse
 import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
 import com.example.gastroandes.model.User
+import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+
+data class TimeData(
+    val tiempo: Double,
+    val plataforma: String,
+    val timestamp: Long = System.currentTimeMillis() // Genera el timestamp
+)
 
 interface ApiService {
     @GET("/restaurant/list")
@@ -34,4 +41,7 @@ interface ApiService {
     @POST("/users/auth")
     suspend fun authenticateUser(@Body credentials: AuthCredentials): AuthResponse
 
+    // Método para el servicio de analíticas
+    @POST("/add_time")
+    fun sendTime(@Body timeData: TimeData): Call<Void>
 }
