@@ -11,7 +11,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
+import com.example.gastroandes.model.SessionManager
+import com.example.gastroandes.network.RetrofitInstance
 import com.example.gastroandes.viewModel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +26,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Inicializar el SessionManager
+        SessionManager.init(this)
+
         enableEdgeToEdge()
         setContentView(R.layout.login_v1)
 
@@ -29,6 +39,9 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // Verificar si el usuario ya está autenticado
+        checkUserAuthentication()
 
         // Obtener los campos del formulario de login
         val emailField = findViewById<EditText>(R.id.email_field)
@@ -74,5 +87,34 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error en el login. Verifica tus credenciales.", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    // Función para verificar si el usuario ya está autenticado
+    private fun checkUserAuthentication() {
+        // Verificar si hay un token guardado
+        val token = SessionManager.getAuthToken()
+
+        if (token != null) {
+            // Hacer la petición para obtener la información del usuario con el token
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val user = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                    withContext(Dispatchers.Main) {
+                        // Si el token es válido y el usuario es autenticado
+                        Toast.makeText(this@MainActivity, "Usuario autenticado", Toast.LENGTH_SHORT).show()
+                        // Redirigir a RestaurantListActivity
+                        val intent = Intent(this@MainActivity, RestaurantListActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+                } catch (e: Exception) {
+                    // Si el token no es válido o está vencido, se atrapa la excepción
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Sesión expirada, por favor inicia sesión.", Toast.LENGTH_SHORT).show()
+                        // Continuar con el flujo normal de login (no hacer nada)
+                    }
+                }
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gastroandes.model.AuthCredentials
 import com.example.gastroandes.model.AuthResponse
+import com.example.gastroandes.model.SessionManager
 import com.example.gastroandes.network.RetrofitInstance
 import kotlinx.coroutines.launch
 
@@ -27,6 +28,9 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response: AuthResponse = RetrofitInstance.usersApi.authenticateUser(credentials)
+                // Guardar el token en el SessionManager
+                SessionManager.saveAuthToken(response.token)
+
                 // Si el login es exitoso
                 _loginSuccess.value = true
             } catch (e: Exception) {

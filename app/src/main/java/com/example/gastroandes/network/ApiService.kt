@@ -4,6 +4,7 @@ import com.example.gastroandes.model.AuthCredentials
 import com.example.gastroandes.model.AuthResponse
 import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
+import com.example.gastroandes.model.TokenUser
 import com.example.gastroandes.model.User
 import retrofit2.Call
 import retrofit2.http.Body
@@ -36,7 +37,7 @@ interface ApiService {
     suspend fun resetDatabase(@Header("Authorization") token: String)
 
     @GET("/users/me")
-    suspend fun getUserInfo(@Header("Authorization") token: String): User
+    suspend fun getUserInfo(@Header("Authorization") token: String): TokenUser
 
     @POST("/users/auth")
     suspend fun authenticateUser(@Body credentials: AuthCredentials): AuthResponse
