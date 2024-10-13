@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.gastroandes.viewModel.RestaurantListViewModel
 import android.widget.ImageButton
 import android.content.Intent
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class RestaurantListActivity : AppCompatActivity() {
 
@@ -50,10 +51,24 @@ class RestaurantListActivity : AppCompatActivity() {
 
         // Observa si hay errores
         viewModel.errorMessage.observe(this, Observer { error ->
-            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         })
 
         // Llama al ViewModel para cargar los restaurantes
         viewModel.fetchRestaurantList()
+
+        // Configurar el listener para la barra de navegación
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.history -> {
+                    // Navegar a RestaurantListActivity
+                    val intent = Intent(this, HistoryActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }

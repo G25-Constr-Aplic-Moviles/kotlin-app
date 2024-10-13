@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -16,8 +17,11 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.Observer
+import com.example.gastroandes.model.HistoryEntry
 import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
+import com.example.gastroandes.model.SessionManager
+import com.example.gastroandes.network.RetrofitInstance
 import com.example.gastroandes.viewModel.RestaurantDetailViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -44,12 +48,25 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.restaurante_v4)
         createFragment()
 
+        // Configurar el listener para la barra de navegación
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
                     // Navegar a RestaurantListActivity
                     val intent = Intent(this, RestaurantListActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.history -> {
+                    // Navegar a RestaurantListActivity
+                    val intent = Intent(this, HistoryActivity::class.java)
                     startActivity(intent)
                     true
                 }
@@ -90,6 +107,38 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         viewModel.fetchMenuItems(restaurantId)
+
+        val markAsVisitedButton = findViewById<Button>(R.id.markAsVisitedButton)
+        markAsVisitedButton.setOnClickListener {
+            val token = SessionManager.getAuthToken()
+
+            lifecycleScope.launch {
+                try {
+                    // 1. Obtener la información del usuario
+                    val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                    val userId = userInfo.id
+
+                    // 2. Obtener el ID del restaurante y el timestamp actual
+                    val timestamp = System.currentTimeMillis()
+
+                    // 3. Crear el objeto HistoryEntry y hacer la petición POST
+                    val historyEntry = HistoryEntry(
+                        user_id = userId,
+                        restaurant_id = restaurantId.toString(),
+                        timestamp = timestamp
+                    )
+
+                    try {
+                        RetrofitInstance.historyApi.addEntry(historyEntry)
+                        Toast.makeText(this@RestaurantDetailActivity, "Marcado como visitado", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(this@RestaurantDetailActivity, "Error al marcar como visitado: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this@RestaurantDetailActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
     }
 
