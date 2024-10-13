@@ -56,6 +56,18 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
                 else -> false
             }
         }
+
+        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.history -> {
+                    // Navegar a RestaurantListActivity
+                    val intent = Intent(this, HistoryActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun createFragment() {

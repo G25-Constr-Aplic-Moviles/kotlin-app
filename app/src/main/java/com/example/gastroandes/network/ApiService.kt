@@ -2,10 +2,12 @@ package com.example.gastroandes.network
 
 import com.example.gastroandes.model.AuthCredentials
 import com.example.gastroandes.model.AuthResponse
+import com.example.gastroandes.model.HistoryEntry
 import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
 import com.example.gastroandes.model.TokenUser
 import com.example.gastroandes.model.User
+import com.google.android.gms.common.api.Response
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -45,4 +47,8 @@ interface ApiService {
     // Método para el servicio de analíticas
     @POST("/add_time")
     fun sendTime(@Body timeData: TimeData): Call<Void>
+
+    // Métodos para el servicio de historial
+    @POST("/history/add")
+    suspend fun addEntry(@Body historyEntry: HistoryEntry)
 }

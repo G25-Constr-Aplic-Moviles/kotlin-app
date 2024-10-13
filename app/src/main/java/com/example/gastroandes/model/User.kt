@@ -11,6 +11,7 @@ data class User(
 
 data class TokenUser(
     val id: String,
-    val token: String,
-    val expireAt: LocalDateTime
+    val firstname: String,
+    val lastName: String,
+    val email: String
 )
