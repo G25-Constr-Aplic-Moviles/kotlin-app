@@ -1,5 +1,6 @@
 package com.example.gastroandes.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,6 +31,7 @@ class MainViewModel : ViewModel() {
                 val response: AuthResponse = RetrofitInstance.usersApi.authenticateUser(credentials)
                 // Guardar el token en el SessionManager
                 SessionManager.saveAuthToken(response.token)
+                Log.d("AuthToken", "Token obtenido: ${response.token}")
 
                 // Si el login es exitoso
                 _loginSuccess.value = true

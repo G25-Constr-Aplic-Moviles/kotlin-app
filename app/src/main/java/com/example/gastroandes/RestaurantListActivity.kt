@@ -59,6 +59,7 @@ class RestaurantListActivity : AppCompatActivity() {
 
         // Configurar el listener para la barra de navegación
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.selectedItemId = R.id.home
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.history -> {
