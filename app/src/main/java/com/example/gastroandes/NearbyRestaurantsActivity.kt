@@ -20,9 +20,15 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import android.content.Intent
 import android.util.Log
+import com.example.gastroandes.model.SessionManager
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.lifecycle.lifecycleScope
+
 
 class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -119,24 +125,38 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun sendLoadingTimeToAnalytics(loadingTime: Double) {
-        // Crear el objeto TimeData con el tiempo, la plataforma y el timestamp
-        val timeData = TimeData(tiempo = loadingTime, plataforma = "Kotlin")
+        // Lanzar la corutina para obtener el userId dentro de la función
+        lifecycleScope.launch {
+            try {
+                // Obtener el token (asegúrate de tener el token correctamente)
+                val token = SessionManager.getAuthToken()
+                // Obtener la información del usuario desde la API
+                val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                val userId = userInfo.id
 
-        // Hacer la llamada al servicio API para enviar los datos
-        RetrofitInstance.analyticsApi.sendTime(timeData).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    Log.d("Analytics", "Tiempo de carga enviado correctamente")
-                } else {
-                    Log.e("Analytics", "Error en el servidor: ${response.errorBody()}")
-                }
-            }
+                // Crear el objeto TimeData con el tiempo, la plataforma y el ID del usuario
+                val timeData = TimeData(tiempo = loadingTime, plataforma = "Kotlin", userID = userId)
 
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.e("Analytics", "Fallo al enviar el tiempo de carga", t)
+                // Hacer la llamada al servicio API para enviar los datos
+                RetrofitInstance.analyticsApi.sendTime(timeData).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        if (response.isSuccessful) {
+                            Log.d("Analytics", "Tiempo de carga enviado correctamente")
+                        } else {
+                            Log.e("Analytics", "Error en el servidor: ${response.errorBody()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("Analytics", "Fallo al enviar el tiempo de carga", t)
+                    }
+                })
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        })
+        }
     }
+
 
     private fun setupObservers() {
         viewModel.markers.observe(this, Observer { markerOptionsList ->

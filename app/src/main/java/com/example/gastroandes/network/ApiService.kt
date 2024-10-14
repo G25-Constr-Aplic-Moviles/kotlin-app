@@ -19,7 +19,8 @@ import retrofit2.http.Path
 data class TimeData(
     val tiempo: Double,
     val plataforma: String,
-    val timestamp: Long = System.currentTimeMillis() // Genera el timestamp
+    val timestamp: Long = System.currentTimeMillis(), // Genera el timestamp
+    val userID: String
 )
 
 interface ApiService {
