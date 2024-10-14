@@ -1,15 +1,19 @@
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gastroandes.R
+import com.example.gastroandes.model.UserHistoryEntry
 
-class HistoryAdapter(private val entries: List<String>) :
+class HistoryAdapter(var entries: List<UserHistoryEntry>) :
     RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textView: TextView = view.findViewById(R.id.historyEntryText)
+        val dateTextView: TextView = view.findViewById(R.id.dateLabelText)
+        val restaurantIdTextView: TextView = view.findViewById(R.id.historyEntryText)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -18,8 +22,16 @@ class HistoryAdapter(private val entries: List<String>) :
         return ViewHolder(view)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.textView.text = entries[position]
+        val entry = entries[position]
+        holder.dateTextView.text = entry.getFormattedDate()
+        holder.restaurantIdTextView.text = entry.restaurantName ?: "Desconocido"
+    }
+
+    fun updateData(newEntries: List<UserHistoryEntry>) {
+        entries = newEntries
+        notifyDataSetChanged()
     }
 
     override fun getItemCount() = entries.size

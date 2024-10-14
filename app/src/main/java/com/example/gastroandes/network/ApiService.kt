@@ -7,6 +7,7 @@ import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
 import com.example.gastroandes.model.TokenUser
 import com.example.gastroandes.model.User
+import com.example.gastroandes.model.UserHistoryEntry
 import com.google.android.gms.common.api.Response
 import retrofit2.Call
 import retrofit2.http.Body
@@ -51,4 +52,7 @@ interface ApiService {
     // Métodos para el servicio de historial
     @POST("/history/add")
     suspend fun addEntry(@Body historyEntry: HistoryEntry)
+
+    @GET("/history/{user_id}")
+    suspend fun getUserHistory(@Path("user_id") id: String): List<UserHistoryEntry>
 }

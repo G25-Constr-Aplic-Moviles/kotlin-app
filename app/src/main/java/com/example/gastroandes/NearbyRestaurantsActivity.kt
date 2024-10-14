@@ -45,6 +45,7 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Configurar el listener para la barra de navegación
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+        bottomNavigationView.selectedItemId = 0
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
@@ -53,12 +54,6 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(intent)
                     true
                 }
-                else -> false
-            }
-        }
-
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
                 R.id.history -> {
                     // Navegar a RestaurantListActivity
                     val intent = Intent(this, HistoryActivity::class.java)
