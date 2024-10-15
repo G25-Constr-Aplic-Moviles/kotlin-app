@@ -58,12 +58,6 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(intent)
                     true
                 }
-                else -> false
-            }
-        }
-
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
                 R.id.history -> {
                     // Navegar a RestaurantListActivity
                     val intent = Intent(this, HistoryActivity::class.java)
