@@ -64,15 +64,19 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(intent)
                     true
                 }
+                R.id.logOut -> {
+                    logoutUser()
+                    true
+                }
                 else -> false
             }
         }
 
-        // Obtén una referencia al botón de regreso
-        val btnBack = findViewById<ImageButton>(R.id.btn_back)
-        btnBack.setOnClickListener {
-            finish() // Cierra la actividad actual y regresa a la anterior
-        }
+    // Obtén una referencia al botón de regreso
+    val btnBack = findViewById<ImageButton>(R.id.btn_back)
+    btnBack.setOnClickListener {
+        finish() // Cierra la actividad actual y regresa a la anterior
+    }
 
         val restaurantId = intent.getIntExtra("RESTAURANTE_ID", 1)
 
@@ -254,5 +258,15 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         return formatter.format(price)
     }
 
+    private fun logoutUser() {
+        // Limpia el token de SharedPreferences
+        SessionManager.clearAuthToken()
+
+        // Redirige a la pantalla de inicio de sesión
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish() // Cierra la actividad actual
+    }
 
 }

@@ -24,6 +24,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
+
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -59,11 +64,26 @@ class HistoryActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
+                R.id.logOut -> {
+                    logoutUser()
+                    true
+                }
                 else -> false
             }
         }
         fetchUserHistory()
         setupTimeFilterButton()
+    }
+
+    private fun logoutUser() {
+        // Limpia el token de SharedPreferences
+        SessionManager.clearAuthToken()
+
+        // Redirige a la pantalla de inicio de sesión
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish() // Cierra la actividad actual
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -74,7 +94,7 @@ class HistoryActivity : AppCompatActivity() {
             val userId = userInfo.id
             try {
                 val historyList = RetrofitInstance.historyApi.getUserHistory(userId)
-                // Obtener el nombre del restaurante para cada entrada
+
                 for (entry in historyList) {
                     try {
                         val restaurantDetail = RetrofitInstance.api.getRestauranteDetail(entry.restaurant_id.toInt())
@@ -84,20 +104,49 @@ class HistoryActivity : AppCompatActivity() {
                         Log.e("HistoryActivity", "Error al obtener detalles del restaurante", e)
                     }
                 }
+
+                // Ordenar en orden descendente basándonos en el timestamp formateado
+                val sortedHistoryList = historyList.sortedByDescending { entry ->
+                    convertFormattedTimestampToMillis(entry.timestamp)
+                }
+
                 withContext(Dispatchers.Main) {
-                    completeHistoryList = historyList
+                    completeHistoryList = sortedHistoryList
                     adapter = HistoryAdapter(completeHistoryList)
                     recyclerView.adapter = adapter
                     setupFilterButton()
                 }
             } catch (e: Exception) {
-                Log.e("HistoryActivityDeMierda", "Error al cargar el historial del usuario", e)
+                Log.e("HistoryActivity", "Error al cargar el historial del usuario", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@HistoryActivity, "Error al cargar el historial", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
+
+    // Función para convertir el timestamp con varios formatos a milisegundos
+    private fun convertFormattedTimestampToMillis(timestamp: String): Long {
+        // Primer formato: "EEE, dd MMM yyyy HH:mm:ss 'GMT'"
+        val primaryFormatter = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH)
+        primaryFormatter.timeZone = TimeZone.getTimeZone("GMT")
+
+        // Segundo formato: "EEE, dd MMM yyyy HH:mm:ss zzz"
+        val alternateFormatter = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH)
+        alternateFormatter.timeZone = TimeZone.getDefault()
+
+        return try {
+            primaryFormatter.parse(timestamp)?.time ?: 0L
+        } catch (e: ParseException) {
+            try {
+                alternateFormatter.parse(timestamp)?.time ?: 0L
+            } catch (e2: ParseException) {
+                Log.e("HistoryActivity", "Error al parsear la fecha: $timestamp", e2)
+                0L // Devuelve 0 si falla la conversión
+            }
+        }
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupFilterButton() {
@@ -172,17 +221,17 @@ class HistoryActivity : AppCompatActivity() {
 
         // Filtrar por tiempo si está seleccionado
         selectedTimeRange?.let { days ->
-            val currentDate = LocalDateTime.now()
-            filteredList = filteredList.filter {
-                val formatter = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
-                val entryDate = LocalDateTime.parse(it.timestamp, formatter)
-                val daysBetween = java.time.Duration.between(entryDate, currentDate).toDays()
-                daysBetween <= days
+            val currentDateInMillis = System.currentTimeMillis()
+            val daysInMillis = days * 24 * 60 * 60 * 1000 // Convierte días a milisegundos
+
+            filteredList = filteredList.filter { entry ->
+                val entryMillis = convertFormattedTimestampToMillis(entry.timestamp)
+                entryMillis != 0L && (currentDateInMillis - entryMillis) <= daysInMillis
             }
         }
-
         // Actualizar el adaptador con la lista filtrada
         adapter.updateData(filteredList)
     }
+
 
 }

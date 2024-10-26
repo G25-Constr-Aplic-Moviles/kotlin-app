@@ -7,7 +7,7 @@
     <item android:title="History"
         android:id="@+id/history"
         android:icon="@drawable/baseline_list_alt_24"/>
-    <item android:title="Profile"
-        android:id="@+id/profile"
-        android:icon="@drawable/baseline_person_24"/>
+    <item android:title="Log out"
+        android:id="@+id/logOut"
+        android:icon="@drawable/ic_logout"/>
 </menu>
