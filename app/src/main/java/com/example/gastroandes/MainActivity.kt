@@ -1,7 +1,12 @@
 package com.example.gastroandes
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -33,6 +38,33 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContentView(R.layout.login_v1)
+        val registerButton = findViewById<Button>(R.id.register_button)
+
+        // Crear el texto con formato
+        val fullText = "¿No tienes cuenta? Regístrate"
+        val spannableString = SpannableString(fullText)
+
+        // Aplicar color azul y subrayado solo a "Regístrate"
+        spannableString.setSpan(
+            ForegroundColorSpan(Color.BLUE), // Color azul
+            fullText.indexOf("Regístrate"), // Inicio de "Regístrate"
+            fullText.length, // Fin de "Regístrate"
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannableString.setSpan(
+            UnderlineSpan(), // Subrayado
+            fullText.indexOf("Regístrate"), // Inicio de "Regístrate"
+            fullText.length, // Fin de "Regístrate"
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        // Configurar el texto formateado en el botón
+        registerButton.text = spannableString
+
+        // Configurar el clic del botón para navegar al registro
+        registerButton.setOnClickListener {
+            viewModel.onRegisterClicked()
+        }
 
         // Ajusta los padding para evitar la superposición con las barras del sistema
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -49,12 +81,6 @@ class MainActivity : AppCompatActivity() {
         val passwordField = findViewById<EditText>(R.id.password_field)
         val loginButton = findViewById<Button>(R.id.login_button)
 
-        // Configurar el botón de "¿No tienes cuenta? Regístrate"
-        val registerButton = findViewById<Button>(R.id.register_button)
-        registerButton.setOnClickListener {
-            viewModel.onRegisterClicked()
-        }
-
         // Observar el LiveData de navegación al registro
         viewModel.navigateToRegister.observe(this, Observer { shouldNavigate ->
             if (shouldNavigate) {
@@ -68,6 +94,12 @@ class MainActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             val email = emailField.text.toString().trim()
             val password = passwordField.text.toString().trim()
+
+            // Validar el formato del email
+            if (!isValidEmail(email)) {
+                Toast.makeText(this, "Por favor ingresa un email válido", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 viewModel.loginUser(email, password)
@@ -88,6 +120,11 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error en el login. Verifica tus credenciales.", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return email.matches(Regex(emailRegex))
     }
 
     // Función para verificar si el usuario ya está autenticado
