@@ -66,9 +66,23 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
                     startActivity(intent)
                     true
                 }
+                R.id.logOut -> {
+                    logoutUser()
+                    true
+                }
                 else -> false
             }
         }
+    }
+    private fun logoutUser() {
+        // Limpia el token de SharedPreferences
+        SessionManager.clearAuthToken()
+
+        // Redirige a la pantalla de inicio de sesión
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish() // Cierra la actividad actual
     }
 
     private fun createFragment() {
