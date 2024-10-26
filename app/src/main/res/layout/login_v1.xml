@@ -96,7 +96,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="¿No tienes cuenta? Regístrate"
+        android:text="Regístrate"
         android:textColor="#000000"
         android:background="@android:color/transparent"
         app:layout_constraintTop_toBottomOf="@id/login_card"
