@@ -29,9 +29,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 
-
 class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private var mapIsReady = false
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val viewModel: NearbyRestaurantsViewModel by viewModels {
@@ -42,28 +42,23 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.nearby_restaurants_v8)
 
-        // Obtener el tiempo de inicio desde el intent
-        val startTime = intent.getLongExtra("startTime", 0)
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         createFragment()
         setupObservers()
+        setupNavigation()
+    }
 
-        // Configurar el listener para la barra de navegación
+    private fun setupNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = 0
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
-                    // Navegar a RestaurantListActivity
-                    val intent = Intent(this, RestaurantListActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, RestaurantListActivity::class.java))
                     true
                 }
                 R.id.history -> {
-                    // Navegar a RestaurantListActivity
-                    val intent = Intent(this, HistoryActivity::class.java)
-                    startActivity(intent)
+                    startActivity(Intent(this, HistoryActivity::class.java))
                     true
                 }
                 R.id.logOut -> {
@@ -74,15 +69,13 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-    private fun logoutUser() {
-        // Limpia el token de SharedPreferences
-        SessionManager.clearAuthToken()
 
-        // Redirige a la pantalla de inicio de sesión
+    private fun logoutUser() {
+        SessionManager.clearAuthToken()
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-        finish() // Cierra la actividad actual
+        finish()
     }
 
     private fun createFragment() {
@@ -92,66 +85,83 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-        getDeviceLocation()
+        mapIsReady = true
+        // Asegúrate de esperar un pequeño tiempo o usar un observador de ciclo de vida para garantizar que el mapa esté listo
+        map.setOnMapLoadedCallback {
+            initializeMapIfPermissionsGranted()
+        }
+    }
+
+
+    private fun initializeMapIfPermissionsGranted() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            map.isMyLocationEnabled = true
+            getDeviceLocation()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
+        }
     }
 
     private fun getDeviceLocation() {
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1
-            )
-            return
-        }
-
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                map.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f),
-                    3000,
-                    null
-                )
-
-                // Pasar la ubicación del usuario al ViewModel
-                viewModel.loadNearbyRestaurants(currentLatLng)
-
-                // Calcular el tiempo de carga cuando la ubicación es obtenida
-                val endTime = System.currentTimeMillis()
-                val loadingTime = (endTime - intent.getLongExtra("startTime", 0)) / 1000.0  // Tiempo en segundos
-
-                // Registrar el tiempo de carga
-                Log.d("LoadingTime", "Tiempo de carga: $loadingTime segundos")
-
-                // Enviar el tiempo de carga al servidor
-                sendLoadingTimeToAnalytics(loadingTime)
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    val currentLatLng = LatLng(location.latitude, location.longitude)
+                    map.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f),
+                        3000,
+                        null
+                    )
+                    viewModel.loadNearbyRestaurants(currentLatLng)
+                    sendLoadingTimeToAnalytics()
+                }
             }
         }
     }
 
-    private fun sendLoadingTimeToAnalytics(loadingTime: Double) {
-        // Lanzar la corutina para obtener el userId dentro de la función
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (mapIsReady) {
+                // Reinicia la actividad para asegurarte de que el mapa se recargue con el permiso ya concedido
+                finish()
+                startActivity(intent)
+            }
+        } else {
+            Log.e("Permission", "Location permission was not granted")
+        }
+    }
+
+
+    private fun sendLoadingTimeToAnalytics() {
+        val startTime = intent.getLongExtra("startTime", 0)
+        val endTime = System.currentTimeMillis()
+        val loadingTime = (endTime - startTime) / 1000.0
+        Log.d("LoadingTime", "Tiempo de carga: $loadingTime segundos")
+
         lifecycleScope.launch {
             try {
-                // Obtener el token (asegúrate de tener el token correctamente)
                 val token = SessionManager.getAuthToken()
-                // Obtener la información del usuario desde la API
                 val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
                 val userId = userInfo.id
-
-                // Crear el objeto TimeData con el tiempo, la plataforma y el ID del usuario
                 val timeData = TimeData(tiempo = loadingTime, plataforma = "Kotlin", userID = userId)
 
-                // Hacer la llamada al servicio API para enviar los datos
                 RetrofitInstance.analyticsApi.sendTime(timeData).enqueue(object : Callback<Void> {
                     override fun onResponse(call: Call<Void>, response: Response<Void>) {
                         if (response.isSuccessful) {
@@ -170,7 +180,6 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
 
     private fun setupObservers() {
         viewModel.markers.observe(this, Observer { markerOptionsList ->
