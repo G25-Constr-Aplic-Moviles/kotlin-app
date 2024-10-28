@@ -86,8 +86,12 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         mapIsReady = true
-        initializeMapIfPermissionsGranted()
+        // Asegúrate de esperar un pequeño tiempo o usar un observador de ciclo de vida para garantizar que el mapa esté listo
+        map.setOnMapLoadedCallback {
+            initializeMapIfPermissionsGranted()
+        }
     }
+
 
     private fun initializeMapIfPermissionsGranted() {
         if (ActivityCompat.checkSelfPermission(
@@ -135,12 +139,15 @@ class NearbyRestaurantsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             if (mapIsReady) {
-                getDeviceLocation()
+                // Reinicia la actividad para asegurarte de que el mapa se recargue con el permiso ya concedido
+                finish()
+                startActivity(intent)
             }
         } else {
             Log.e("Permission", "Location permission was not granted")
         }
     }
+
 
     private fun sendLoadingTimeToAnalytics() {
         val startTime = intent.getLongExtra("startTime", 0)
