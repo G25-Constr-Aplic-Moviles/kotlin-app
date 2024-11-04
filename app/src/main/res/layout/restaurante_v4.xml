@@ -342,22 +342,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <!-- LinearLayout interno para las experiencias -->
                     <LinearLayout
+                        android:id="@+id/reviews_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <!-- Ejemplo de una experiencia -->
                         <TextView
                             android:id="@+id/experience_text"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text=""
+                            android:text="Ver todas las reseñas"
                             android:background="@drawable/experience_background"
                             android:textSize="16sp"
                             android:padding="8dp"
-                            android:textAlignment="center" />
+                            android:textAlignment="center"
+                            android:clickable="true" />
                     </LinearLayout>
                 </ScrollView>
             </LinearLayout>

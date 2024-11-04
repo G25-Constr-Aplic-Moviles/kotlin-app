@@ -26,7 +26,7 @@ object RetrofitInstance {
 
     private val usersRetrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://35.209.53.52/")
+            .baseUrl("http://35.209.75.102/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
@@ -45,6 +45,15 @@ object RetrofitInstance {
             .build()
     }
 
+    val ReviewRetrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://reviews-service-af854d664941.herokuapp.com")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+
+
     val api: ApiService by lazy {
         retrofit.create(ApiService::class.java)
     }
@@ -59,5 +68,8 @@ object RetrofitInstance {
 
     val historyApi: ApiService by lazy {
         historyRetrofit.create(ApiService::class.java)
+    }
+    val reviewApi: ApiService by lazy {
+        ReviewRetrofit.create(ApiService::class.java)
     }
 }

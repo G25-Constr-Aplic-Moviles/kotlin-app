@@ -20,6 +20,7 @@ import androidx.lifecycle.Observer
 import com.example.gastroandes.model.HistoryEntry
 import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
+import com.example.gastroandes.model.Review
 import com.example.gastroandes.model.SessionManager
 import com.example.gastroandes.network.RetrofitInstance
 import com.example.gastroandes.viewModel.RestaurantDetailViewModel
@@ -48,6 +49,21 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.restaurante_v4)
         createFragment()
 
+
+        // Encuentra el botón de añadir reseña
+        val btnAddResenia = findViewById<ImageButton>(R.id.btn_add_resenia)
+
+        val restaurantId = intent.getIntExtra("RESTAURANTE_ID", 1)
+
+        // Configura el listener para el botón
+        btnAddResenia.setOnClickListener {
+            // Crea un Intent para iniciar CreateReviewActivity
+            val intent = Intent(this, CreateReviewActivity::class.java)
+            // Agrega el ID del restaurante al Intent
+            intent.putExtra("RESTAURANT_ID", restaurantId)
+            startActivity(intent)
+        }
+
         // Configurar el listener para la barra de navegación
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
@@ -72,13 +88,23 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+        // Obtén una referencia al TextView
+        val experienceTextView = findViewById<TextView>(R.id.experience_text)
+
+// Configura el listener para manejar el clic
+        experienceTextView.setOnClickListener {
+            // Crea un Intent para iniciar ReviewsActivity
+            val intent = Intent(this, ReviewActivty::class.java)
+            // Puedes agregar datos al Intent si lo necesitas
+            intent.putExtra("RESTAURANTE_ID", restaurantId) // Agrega el ID del restaurante si es necesario
+            startActivity(intent)
+        }
+
     // Obtén una referencia al botón de regreso
     val btnBack = findViewById<ImageButton>(R.id.btn_back)
     btnBack.setOnClickListener {
         finish() // Cierra la actividad actual y regresa a la anterior
     }
-
-        val restaurantId = intent.getIntExtra("RESTAURANTE_ID", 1)
 
         // Observa los datos del restaurante
         viewModel.restaurant.observe(this, Observer { restaurant ->
@@ -97,7 +123,6 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
             Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
         })
 
-        // Llama al ViewModel para obtener los detalles del restaurante
         viewModel.fetchRestaurantDetails(restaurantId)
 
         viewModel.menuItems.observe(this, Observer { menuItems ->
@@ -105,6 +130,7 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         viewModel.fetchMenuItems(restaurantId)
+
 
         val markAsVisitedButton = findViewById<Button>(R.id.markAsVisitedButton)
         markAsVisitedButton.setOnClickListener {
@@ -128,6 +154,7 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     try {
                         RetrofitInstance.historyApi.addEntry(historyEntry)
+
                         Toast.makeText(this@RestaurantDetailActivity, "Marcado como visitado", Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
                         Toast.makeText(this@RestaurantDetailActivity, "Error al marcar como visitado: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -194,6 +221,10 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun displayFirstReview(review: Review) {
+        val experienceTextView = findViewById<TextView>(R.id.experience_text)
+        experienceTextView.text = review.content // Suponiendo que `content` es la propiedad que contiene el texto de la reseña
+    }
 
     private fun updateMenuItemsUI(menuItems: List<MenuItem>) {
         // Referencias a los elementos de la UI
@@ -267,6 +298,22 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish() // Cierra la actividad actual
+    }
+
+    private fun addReview() {
+
+        // Redirige a la pantalla de inicio de sesión
+        val intent = Intent(this, CreateReviewActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    private fun loadReviewData(review: Review) {
+        val experienceTextView: TextView = findViewById(R.id.experience_text)
+
+        // Asigna el contenido de la reseña al TextView
+        experienceTextView.text = review.content
     }
 
 }

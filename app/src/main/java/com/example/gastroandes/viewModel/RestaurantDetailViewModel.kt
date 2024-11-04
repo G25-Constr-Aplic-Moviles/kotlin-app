@@ -3,12 +3,14 @@ package com.example.gastroandes.viewModel
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gastroandes.model.MenuItem
 import com.example.gastroandes.model.Restaurante
+import com.example.gastroandes.model.Review // Asegúrate de tener este modelo
 import com.example.gastroandes.network.RetrofitInstance
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +30,9 @@ class RestaurantDetailViewModel : ViewModel() {
     private val _restaurantImage = MutableLiveData<Bitmap?>()
     val restaurantImage: LiveData<Bitmap?> get() = _restaurantImage
 
+    private val _reviews = MutableLiveData<List<Review>>() // Nuevo LiveData para reseñas
+    val reviews: LiveData<List<Review>> get() = _reviews
+
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
@@ -43,6 +48,11 @@ class RestaurantDetailViewModel : ViewModel() {
             }
         }
     }
+
+    private val _review = MutableLiveData<Review>()
+    val review: LiveData<Review> get() = _review
+
+
 
     // Cargar la imagen del restaurante desde la URL
     private fun loadImageFromUrl(url: String) {
@@ -70,5 +80,4 @@ class RestaurantDetailViewModel : ViewModel() {
             }
         }
     }
-
 }

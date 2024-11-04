@@ -9,6 +9,7 @@ import com.example.gastroandes.model.TokenUser
 import com.example.gastroandes.model.User
 import com.example.gastroandes.model.UserHistoryEntry
 import com.google.android.gms.common.api.Response
+import com.example.gastroandes.model.Review
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -33,6 +34,10 @@ interface ApiService {
     @GET("/menu_item/{restaurant_id}")
     suspend fun getMenuItemByRestaurant(@Path("restaurant_id") id: Int): List<MenuItem>
 
+    // Método para obtener reseñas por ID de restaurante
+    @GET("/{restaurant_id}") // Cambia la URL según tu endpoint
+    suspend fun getReviewsByRestaurant(@Path("restaurant_id") id: Int): List<Review>
+
     // Métodos para el servicio de usuarios
     @POST("/users")
     suspend fun createUser(@Body user: User)
@@ -56,4 +61,8 @@ interface ApiService {
 
     @GET("/history/{user_id}")
     suspend fun getUserHistory(@Path("user_id") id: String): List<UserHistoryEntry>
+
+    // Método para agregar una reseña
+    @POST("/add_review")  // Cambia la URL a la que corresponde tu servicio
+    suspend fun addReview(@Body review: Review)
 }
