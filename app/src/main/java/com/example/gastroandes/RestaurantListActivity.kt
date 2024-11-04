@@ -4,15 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.gastroandes.viewModel.RestaurantListViewModel
-import android.widget.ImageButton
 import com.example.gastroandes.model.SessionManager
+import com.example.gastroandes.viewModel.RestaurantListViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class RestaurantListActivity : AppCompatActivity() {
@@ -45,8 +45,9 @@ class RestaurantListActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        // Observa los restaurantes desde el ViewModel
         viewModel.restaurants.observe(this, Observer { restaurantList ->
-            restaurantAdapter = RestaurantAdapter(this, restaurantList)
+            restaurantAdapter = restaurantList?.let { RestaurantAdapter(this, it) }!!
             recyclerView.adapter = restaurantAdapter
         })
 
@@ -54,8 +55,18 @@ class RestaurantListActivity : AppCompatActivity() {
             Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         })
 
-        viewModel.fetchRestaurantList()
+        // Si hay conexión, llama a fetchRestaurantList; si no, intenta cargar desde la caché
+        if (isNetworkAvailable()) {
+            viewModel.fetchRestaurantList(isNetworkAvailable())
+        } else {
+            Toast.makeText(this, "Conexión no disponible. Cargando desde caché.", Toast.LENGTH_SHORT).show()
+            viewModel.fetchRestaurantList(isNetworkAvailable()) // Intentará obtener desde la caché si está disponible
+        }
 
+        setupNavigation()
+    }
+
+    private fun setupNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
         bottomNavigationView.selectedItemId = R.id.home
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
@@ -75,14 +86,11 @@ class RestaurantListActivity : AppCompatActivity() {
     }
 
     private fun logoutUser() {
-        // Limpia el token de SharedPreferences
         SessionManager.clearAuthToken()
-
-        // Redirige a la pantalla de inicio de sesión
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-        finish() // Cierra la actividad actual
+        finish()
     }
 
     private fun isNetworkAvailable(): Boolean {
@@ -90,5 +98,4 @@ class RestaurantListActivity : AppCompatActivity() {
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
     }
-
 }
