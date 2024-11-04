@@ -353,6 +353,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Ver todas las reseñas"
+                            android:textColor="#0000FF"
                             android:background="@drawable/experience_background"
                             android:textSize="16sp"
                             android:padding="8dp"
