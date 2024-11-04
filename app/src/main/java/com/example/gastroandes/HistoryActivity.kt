@@ -1,7 +1,10 @@
 package com.example.gastroandes
 
 import HistoryAdapter
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -88,6 +91,12 @@ class HistoryActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun fetchUserHistory() {
+        // Check for network availability before making the network request
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
+            return // Exit the method if there's no connection
+        }
+
         val token = SessionManager.getAuthToken()
         CoroutineScope(Dispatchers.IO).launch {
             val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
@@ -124,6 +133,7 @@ class HistoryActivity : AppCompatActivity() {
             }
         }
     }
+
 
     // Función para convertir el timestamp con varios formatos a milisegundos
     private fun convertFormattedTimestampToMillis(timestamp: String): Long {
@@ -231,6 +241,23 @@ class HistoryActivity : AppCompatActivity() {
         }
         // Actualizar el adaptador con la lista filtrada
         adapter.updateData(filteredList)
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+            when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            val networkInfo = connectivityManager.activeNetworkInfo
+            networkInfo != null && networkInfo.isConnected
+        }
     }
 
 
