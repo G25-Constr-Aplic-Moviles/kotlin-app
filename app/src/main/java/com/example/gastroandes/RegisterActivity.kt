@@ -1,7 +1,9 @@
 package com.example.gastroandes
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -91,7 +93,13 @@ class RegisterActivity : AppCompatActivity() {
                 !isValidName(lastName) -> showToast("Por favor ingresa un apellido válido.")
                 !isValidEmail(email) -> showToast("Por favor ingresa un email válido.")
                 !isValidPassword(password) -> showSnackbar("La contraseña debe tener al menos una mayúscula, un número y un carácter especial.")
-                else -> viewModel.registerUser(firstName, lastName, email, password)
+                else -> if (isNetworkAvailable()) {viewModel.registerUser(firstName, lastName, email, password)} else {
+                    Toast.makeText(
+                        this,
+                        "Por favor, verifica tu conexión a Internet e inténtalo nuevamente más tarde",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
 
@@ -135,5 +143,11 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun showSnackbar(message: String) {
         Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 }
