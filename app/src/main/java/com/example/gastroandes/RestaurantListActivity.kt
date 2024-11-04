@@ -1,6 +1,8 @@
 package com.example.gastroandes
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -25,10 +27,19 @@ class RestaurantListActivity : AppCompatActivity() {
 
         val locationButton: ImageButton = findViewById(R.id.location_image_button)
         locationButton.setOnClickListener {
-            val startTime = System.currentTimeMillis()
-            val intent = Intent(this, NearbyRestaurantsActivity::class.java)
-            intent.putExtra("startTime", startTime)
-            startActivity(intent)
+            if (isNetworkAvailable()) {
+                val startTime = System.currentTimeMillis()
+                val intent = Intent(this, NearbyRestaurantsActivity::class.java)
+                intent.putExtra("startTime", startTime)
+                startActivity(intent)
+            } else {
+                // Mostrar mensaje de error específico cuando no hay conexión a Internet
+                Toast.makeText(
+                    this,
+                    "Por favor, verifica tu conexión a Internet e inténtalo nuevamente más tarde",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         recyclerView = findViewById(R.id.restaurantRecyclerView)
@@ -72,6 +83,12 @@ class RestaurantListActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish() // Cierra la actividad actual
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 
 }
