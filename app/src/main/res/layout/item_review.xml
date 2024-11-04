@@ -20,15 +20,6 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/reviewTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="Increible" />
-
-            <TextView
                 android:id="@+id/reviewDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -52,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textSize="14sp"
-            tools:text="Probé el arroz de lomo y me gustó demasiado, la atención es muy buena. fue rapido y no es muy caro. Lo recomiendo particularmente si tienen prisa, fui a las 2 de la tarde y no habia mucha gente en el lugar. Ponen música agradable y realmente se disfruta mucho el almuerzo" />
+            tools:text="Probé el arroz de lomo y me gustó demasiado, la atención es muy buena. Fue rápido y no es muy caro. Lo recomiendo particularmente si tienen prisa, fui a las 2 de la tarde y no había mucha gente en el lugar. Ponen música agradable y realmente se disfruta mucho el almuerzo." />
 
         <TextView
             android:id="@+id/reviewUsername"
