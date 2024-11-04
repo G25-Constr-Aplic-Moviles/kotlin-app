@@ -26,7 +26,7 @@ object RetrofitInstance {
 
     private val usersRetrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://35.209.75.102/")
+            .baseUrl("http://35.208.54.157/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
