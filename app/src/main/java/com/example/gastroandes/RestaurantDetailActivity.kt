@@ -94,7 +94,7 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 // Configura el listener para manejar el clic
         experienceTextView.setOnClickListener {
             // Crea un Intent para iniciar ReviewsActivity
-            val intent = Intent(this, ReviewActivty::class.java)
+            val intent = Intent(this, ReviewActivity::class.java)
             // Puedes agregar datos al Intent si lo necesitas
             intent.putExtra("RESTAURANTE_ID", restaurantId) // Agrega el ID del restaurante si es necesario
             startActivity(intent)

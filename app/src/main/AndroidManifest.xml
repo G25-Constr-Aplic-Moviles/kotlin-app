@@ -26,9 +26,6 @@
         <activity
             android:name=".CreateReviewActivity"
             android:exported="true"/>
-        <activity android:name=".ReviewActivty"
-            android:exported="true"/>
-            />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -45,7 +42,7 @@
             android:name=".HistoryActivity"
             android:exported="true" />
         <activity
-            android:name=".ReviewsActivity"
+            android:name=".ReviewActivity"
             android:exported="true" />
         <activity
             android:name=".MainActivity"

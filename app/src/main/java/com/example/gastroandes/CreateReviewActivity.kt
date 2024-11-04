@@ -96,7 +96,7 @@ class CreateReviewActivity : AppCompatActivity() {
                         rating = rating,
                         user_id = userId,
                         restaurant_id = restaurantId,
-                        timestamp = timestamp
+                        timestamp = timestamp.toString()
                     )
 
                     // 4. Llamar a la API para agregar la reseña
