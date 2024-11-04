@@ -46,7 +46,7 @@ class RestaurantListActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         viewModel.restaurants.observe(this, Observer { restaurantList ->
-            restaurantAdapter = RestaurantAdapter(restaurantList)
+            restaurantAdapter = RestaurantAdapter(this, restaurantList)
             recyclerView.adapter = restaurantAdapter
         })
 

@@ -1,5 +1,6 @@
 package com.example.gastroandes
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -13,12 +14,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.widget.Toast
 import com.example.gastroandes.model.Restaurante
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-class RestaurantAdapter(private val restaurantList: List<Restaurante>) : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>() {
+
+class RestaurantAdapter(private val context: Context, private val restaurantList: List<Restaurante>) : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestaurantViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.restaurant_item, parent, false)
@@ -48,10 +52,19 @@ class RestaurantAdapter(private val restaurantList: List<Restaurante>) : Recycle
 
         // Configurar el click listener para cada restaurante
         holder.itemView.setOnClickListener {
-            val context = holder.itemView.context
-            val intent = Intent(context, RestaurantDetailActivity::class.java)
-            intent.putExtra("RESTAURANTE_ID", restaurant.restaurant_id)
-            context.startActivity(intent)
+            if (isNetworkAvailable()) {
+                val context = holder.itemView.context
+                val intent = Intent(context, RestaurantDetailActivity::class.java)
+                intent.putExtra("RESTAURANTE_ID", restaurant.restaurant_id)
+                context.startActivity(intent)
+            } else {
+                // Mostrar mensaje de error específico cuando no hay conexión a Internet
+                Toast.makeText(
+                    holder.itemView.context,
+                    "Por favor, verifica tu conexión a Internet e inténtalo nuevamente más tarde",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
     }
 
@@ -80,5 +93,11 @@ class RestaurantAdapter(private val restaurantList: List<Restaurante>) : Recycle
                 null
             }
         }
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 }
