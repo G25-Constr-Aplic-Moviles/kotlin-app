@@ -24,6 +24,12 @@ data class TimeData(
     val userID: String
 )
 
+data class TimeDataReview(
+    val timestamp: Long = System.currentTimeMillis(), // Genera el timestamp
+    val userID: String,
+    val restaurantID: Int
+)
+
 interface ApiService {
     @GET("/restaurant/list")
     suspend fun getRestaurantes(): List<Restaurante>
@@ -54,6 +60,10 @@ interface ApiService {
     // Método para el servicio de analíticas
     @POST("/add_time")
     fun sendTime(@Body timeData: TimeData): Call<Void>
+
+    // Método para el servicio de analíticas
+    @POST("/add_date_review_access")
+    fun sendTime(@Body timeDate: TimeDataReview): Call<Void>
 
     // Métodos para el servicio de historial
     @POST("/history/add")

@@ -332,7 +332,7 @@
                         android:src="@drawable/ic_add"
                         android:background="@android:color/transparent"
                         android:contentDescription="Añadir reseña"
-                        android:tint="#FFFFFF"
+                        app:tint="#FFFFFF"
                         android:padding="8dp" />
             </LinearLayout>
 
@@ -353,6 +353,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Ver todas las reseñas"
+                            android:textColor="#0000FF"
                             android:background="@drawable/experience_background"
                             android:textSize="16sp"
                             android:padding="8dp"
