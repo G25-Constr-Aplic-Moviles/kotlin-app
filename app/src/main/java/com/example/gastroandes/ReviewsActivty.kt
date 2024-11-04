@@ -1,5 +1,9 @@
 package com.example.gastroandes
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
@@ -79,6 +83,12 @@ class ReviewActivity : AppCompatActivity() {
     }
 
     private fun fetchReviews(restaurantId: Int) {
+        // Check for network availability before making the network request
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
+            return // Exit the method if there's no connection
+        }
+
         lifecycleScope.launch {
             try {
                 val reviews = RetrofitInstance.reviewApi.getReviewsByRestaurant(restaurantId)
@@ -128,4 +138,22 @@ class ReviewActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+private fun isNetworkAvailable(): Boolean {
+    val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            else -> false
+        }
+    } else {
+        val networkInfo = connectivityManager.activeNetworkInfo
+        networkInfo != null && networkInfo.isConnected
+    }
 }
+}
+
