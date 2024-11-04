@@ -1,5 +1,9 @@
 package com.example.gastroandes
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -78,42 +82,70 @@ class CreateReviewActivity : AppCompatActivity() {
     private fun addReview() {
         val content = reviewInput.text.toString()
 
+        // Check for network availability
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
+            return // Exit the function if there's no connection
+        }
+
+        // Validate that both content and rating are provided
+        if (content.isBlank()) {
+            Toast.makeText(this, "Por favor ingresa el texto de la reseña.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (rating <= 0) {
+            Toast.makeText(this, "Por favor selecciona una calificación.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val token = SessionManager.getAuthToken()
 
-        if (title.isNotBlank() && content.isNotBlank() && rating > 0) {
-            lifecycleScope.launch {
-                try {
-                    // 1. Obtener la información del usuario
-                    val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
-                    val userId = userInfo.id
+        lifecycleScope.launch {
+            try {
+                // Get user information
+                val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                val userId = userInfo.id
 
-                    // 2. Obtener el ID del restaurante y el timestamp actua
-                    // 3. Crear el objeto Review
-                    val timestamp = System.currentTimeMillis()
+                // Create the Review object
+                val timestamp = System.currentTimeMillis()
+                val review = Review(
+                    content = content,
+                    rating = rating,
+                    user_id = userId,
+                    restaurant_id = restaurantId,
+                    timestamp = timestamp.toString()
+                )
 
-                    val review = Review(
-                        content = content,
-                        rating = rating,
-                        user_id = userId,
-                        restaurant_id = restaurantId,
-                        timestamp = timestamp.toString()
-                    )
+                // Call the API to add the review
+                RetrofitInstance.reviewApi.addReview(review)
 
-                    // 4. Llamar a la API para agregar la reseña
-                    RetrofitInstance.reviewApi.addReview(review)
+                Toast.makeText(this@CreateReviewActivity, "Reseña agregada con éxito", Toast.LENGTH_SHORT).show()
+                finish() // Close the activity after adding the review
 
-                    Toast.makeText(this@CreateReviewActivity, "Reseña agregada con éxito", Toast.LENGTH_SHORT).show()
-                    finish() // Cierra la actividad después de agregar la reseña
-
-                } catch (e: HttpException) {
-                    Toast.makeText(this@CreateReviewActivity, "Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Toast.makeText(this@CreateReviewActivity, "Ocurrió un error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
+            } catch (e: HttpException) {
+                Toast.makeText(this@CreateReviewActivity, "Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(this@CreateReviewActivity, "Ocurrió un error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            Toast.makeText(this, "Por favor, completa todos los campos antes de agregar la reseña.", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val network = connectivityManager.activeNetwork ?: return false
+            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+            when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            val networkInfo = connectivityManager.activeNetworkInfo
+            networkInfo != null && networkInfo.isConnected
+        }
+    }
+
 
 }
