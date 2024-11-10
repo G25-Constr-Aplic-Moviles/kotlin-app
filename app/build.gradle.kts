@@ -60,6 +60,10 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.play.services.location)
 
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+
+    implementation("com.google.firebase:firebase-analytics")
+
 
 
 
