@@ -57,10 +57,10 @@ class RestaurantListActivity : AppCompatActivity() {
 
         // Si hay conexión, llama a fetchRestaurantList; si no, intenta cargar desde la caché
         if (isNetworkAvailable()) {
-            viewModel.fetchRestaurantList(isNetworkAvailable())
+            viewModel.fetchRestaurantList(isNetworkAvailable(), context = this)
         } else {
             Toast.makeText(this, "Conexión no disponible. Cargando desde caché.", Toast.LENGTH_SHORT).show()
-            viewModel.fetchRestaurantList(isNetworkAvailable()) // Intentará obtener desde la caché si está disponible
+            viewModel.fetchRestaurantList(isNetworkAvailable(), context = this) // Intentará obtener desde la caché si está disponible
         }
 
         setupNavigation()

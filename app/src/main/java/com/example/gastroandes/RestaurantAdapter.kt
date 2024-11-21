@@ -16,7 +16,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.example.gastroandes.model.Restaurante
+import java.io.File
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
@@ -43,11 +45,17 @@ class RestaurantAdapter(private val context: Context, private val restaurantList
         }
 
         // Cargar la imagen del restaurante
-        CoroutineScope(Dispatchers.IO).launch {
-            val bitmap = loadImageFromUrl(restaurant.image_url)
-            withContext(Dispatchers.Main) {
-                holder.restaurantImage.setImageBitmap(bitmap)
-            }
+        val imageFile = File(restaurant.local_image_path ?: "")
+        if (imageFile.exists()) {
+            // Cargar desde el archivo local si existe
+            Glide.with(context)
+                .load(imageFile)
+                .into(holder.restaurantImage)
+        } else {
+            // Cargar desde la URL si no hay archivo local
+            Glide.with(context)
+                .load(restaurant.image_url)
+                .into(holder.restaurantImage)
         }
 
         // Configurar el click listener para cada restaurante
