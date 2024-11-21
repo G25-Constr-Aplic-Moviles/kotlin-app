@@ -1,9 +1,11 @@
 package com.example.gastroandes
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.text.NumberFormat
+import android.net.ConnectivityManager
 import androidx.lifecycle.lifecycleScope
 import android.os.Bundle
 import android.util.Log
@@ -57,11 +59,20 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Configura el listener para el botón
         btnAddResenia.setOnClickListener {
-            // Crea un Intent para iniciar CreateReviewActivity
-            val intent = Intent(this, CreateReviewActivity::class.java)
-            // Agrega el ID del restaurante al Intent
-            intent.putExtra("RESTAURANT_ID", restaurantId)
-            startActivity(intent)
+            if (isNetworkAvailable()) {
+                // Crea un Intent para iniciar CreateReviewActivity
+                val intent = Intent(this, CreateReviewActivity::class.java)
+                // Agrega el ID del restaurante al Intent
+                intent.putExtra("RESTAURANT_ID", restaurantId)
+                startActivity(intent)
+            } else {
+                // Mostrar mensaje de error específico cuando no hay conexión a Internet
+                Toast.makeText(
+                    this,
+                    "No hay conexión a Internet. Intenta más tarde.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
         // Configurar el listener para la barra de navegación
@@ -93,11 +104,20 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
 // Configura el listener para manejar el clic
         experienceTextView.setOnClickListener {
-            // Crea un Intent para iniciar ReviewsActivity
-            val intent = Intent(this, ReviewActivity::class.java)
-            // Puedes agregar datos al Intent si lo necesitas
-            intent.putExtra("RESTAURANTE_ID", restaurantId) // Agrega el ID del restaurante si es necesario
-            startActivity(intent)
+            if (isNetworkAvailable()) {
+                // Crea un Intent para iniciar ReviewsActivity
+                val intent = Intent(this, ReviewActivity::class.java)
+                // Puedes agregar datos al Intent si lo necesitas
+                intent.putExtra("RESTAURANTE_ID", restaurantId) // Agrega el ID del restaurante si es necesario
+                startActivity(intent)
+            } else {
+                // Mostrar mensaje de error específico cuando no hay conexión a Internet
+                Toast.makeText(
+                    this,
+                    "No hay conexión a Internet. Intenta más tarde.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
         }
 
     // Obtén una referencia al botón de regreso
@@ -134,34 +154,43 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val markAsVisitedButton = findViewById<Button>(R.id.markAsVisitedButton)
         markAsVisitedButton.setOnClickListener {
-            val token = SessionManager.getAuthToken()
+            if (isNetworkAvailable()) {
+                val token = SessionManager.getAuthToken()
 
-            lifecycleScope.launch {
-                try {
-                    // 1. Obtener la información del usuario
-                    val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
-                    val userId = userInfo.id
-
-                    // 2. Obtener el ID del restaurante y el timestamp actual
-                    val timestamp = System.currentTimeMillis()
-
-                    // 3. Crear el objeto HistoryEntry y hacer la petición POST
-                    val historyEntry = HistoryEntry(
-                        user_id = userId,
-                        restaurant_id = restaurantId.toString(),
-                        timestamp = timestamp
-                    )
-
+                lifecycleScope.launch {
                     try {
-                        RetrofitInstance.historyApi.addEntry(historyEntry)
+                        // 1. Obtener la información del usuario
+                        val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                        val userId = userInfo.id
 
-                        Toast.makeText(this@RestaurantDetailActivity, "Marcado como visitado", Toast.LENGTH_SHORT).show()
+                        // 2. Obtener el ID del restaurante y el timestamp actual
+                        val timestamp = System.currentTimeMillis()
+
+                        // 3. Crear el objeto HistoryEntry y hacer la petición POST
+                        val historyEntry = HistoryEntry(
+                            user_id = userId,
+                            restaurant_id = restaurantId.toString(),
+                            timestamp = timestamp
+                        )
+
+                        try {
+                            RetrofitInstance.historyApi.addEntry(historyEntry)
+
+                            Toast.makeText(this@RestaurantDetailActivity, "Marcado como visitado", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(this@RestaurantDetailActivity, "Error al marcar como visitado: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                     } catch (e: Exception) {
-                        Toast.makeText(this@RestaurantDetailActivity, "Error al marcar como visitado: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@RestaurantDetailActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
-                } catch (e: Exception) {
-                    Toast.makeText(this@RestaurantDetailActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                // Mostrar mensaje de error específico cuando no hay conexión a Internet
+                Toast.makeText(
+                    this,
+                    "No hay conexión a Internet. Intenta más tarde.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -314,6 +343,12 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Asigna el contenido de la reseña al TextView
         experienceTextView.text = review.content
+    }
+
+    private fun isNetworkAvailable(): Boolean {
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 
 }

@@ -47,7 +47,18 @@ class HistoryActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_history)
+        if (isNetworkAvailable()) {
+            setContentView(R.layout.activity_history)
+        } else {
+            val intent = Intent(this, RestaurantListActivity::class.java)
+            startActivity(intent)
+            // Mostrar mensaje de error específico cuando no hay conexión a Internet
+            Toast.makeText(
+                this,
+                "No hay conexión a Internet. Intenta más tarde.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
 
         recyclerView = findViewById(R.id.historyRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
