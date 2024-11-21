@@ -75,7 +75,6 @@ class HistoryActivity : AppCompatActivity() {
             }
         }
         fetchUserHistory()
-        setupTimeFilterButton()
     }
 
     private fun logoutUser() {
@@ -105,13 +104,22 @@ class HistoryActivity : AppCompatActivity() {
                 val historyList = RetrofitInstance.historyApi.getUserHistory(userId)
 
                 for (entry in historyList) {
-                    try {
-                        val restaurantDetail = RetrofitInstance.api.getRestauranteDetail(entry.restaurant_id.toInt())
-                        entry.restaurantName = restaurantDetail.name
-                        restaurantNames.add(restaurantDetail.name)
-                    } catch (e: Exception) {
-                        Log.e("HistoryActivity", "Error al obtener detalles del restaurante", e)
+                    if(isNetworkAvailable()) {
+                        try {
+                            val restaurantDetail =
+                                RetrofitInstance.api.getRestauranteDetail(entry.restaurant_id.toInt())
+                            entry.restaurantName = restaurantDetail.name
+                            restaurantNames.add(restaurantDetail.name)
+                        } catch (e: Exception) {
+                            Log.e("HistoryActivity", "Error al cargar el historial 2", e)
+                        }
                     }
+                    else{ // Mostrar mensaje de error específico cuando no hay conexión a Internet
+                        Toast.makeText(
+                            this@HistoryActivity,
+                            "No hay conexión a Internet. Intenta más tarde.",
+                            Toast.LENGTH_LONG
+                        ).show() }
                 }
 
                 // Ordenar en orden descendente basándonos en el timestamp formateado
@@ -124,14 +132,16 @@ class HistoryActivity : AppCompatActivity() {
                     adapter = HistoryAdapter(completeHistoryList)
                     recyclerView.adapter = adapter
                     setupFilterButton()
+                    setupTimeFilterButton()
                 }
             } catch (e: Exception) {
                 Log.e("HistoryActivity", "Error al cargar el historial del usuario", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@HistoryActivity, "Error al cargar el historial", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@HistoryActivity, "Error al cargar el historial. Revisa tu conexion", Toast.LENGTH_SHORT).show()
                 }
             }
         }
+
     }
 
 
@@ -162,27 +172,31 @@ class HistoryActivity : AppCompatActivity() {
     private fun setupFilterButton() {
         val filterButton: ImageView = findViewById(R.id.filterButton)
         filterButton.setOnClickListener {
-            val restaurantList = restaurantNames.toList()
-            val popupMenu = PopupMenu(this, filterButton)
+            if (!isNetworkAvailable()) {
+                Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
+            } else{
+                val restaurantList = restaurantNames.toList()
+                val popupMenu = PopupMenu(this, filterButton)
 
-            popupMenu.menu.add(0, -1, 0, "Mostrar todos")
+                popupMenu.menu.add(0, -1, 0, "Mostrar todos")
 
-            restaurantList.forEachIndexed { index, restaurant ->
-                popupMenu.menu.add(0, index, 0, restaurant)
-            }
-
-            popupMenu.setOnMenuItemClickListener { item ->
-                if (item.itemId == -1) {
-                    selectedRestaurant = null // Resetea el filtro de restaurante
-                } else {
-                    val selectedRestaurant = restaurantList[item.itemId]
-                    filterHistoryByRestaurant(selectedRestaurant)
+                restaurantList.forEachIndexed { index, restaurant ->
+                    popupMenu.menu.add(0, index, 0, restaurant)
                 }
-                applyFilters()
-                true
-            }
 
-            popupMenu.show()
+                popupMenu.setOnMenuItemClickListener { item ->
+                    if (item.itemId == -1) {
+                        selectedRestaurant = null // Resetea el filtro de restaurante
+                    } else {
+                        val selectedRestaurant = restaurantList[item.itemId]
+                        filterHistoryByRestaurant(selectedRestaurant)
+                    }
+                    applyFilters()
+                    true
+                }
+
+                popupMenu.show()
+            }
         }
     }
 
@@ -190,20 +204,25 @@ class HistoryActivity : AppCompatActivity() {
     private fun setupTimeFilterButton() {
         val timeFilterButton: ImageView = findViewById(R.id.timeFilter)
         timeFilterButton.setOnClickListener {
-            val popupMenu = PopupMenu(this, timeFilterButton)
-            popupMenu.menu.add(0, 1, 0, "Última semana")
-            popupMenu.menu.add(0, 2, 0, "Último mes")
-            popupMenu.menu.add(0, 3, 0, "Últimos 6 meses")
-
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    1 -> filterHistoryByTime(7)    // Última semana
-                    2 -> filterHistoryByTime(30)   // Último mes
-                    3 -> filterHistoryByTime(180)  // Últimos 6 meses
-                }
-                true
+            if (!isNetworkAvailable()) {
+                Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
             }
-            popupMenu.show()
+            else{
+                val popupMenu = PopupMenu(this, timeFilterButton)
+                popupMenu.menu.add(0, 1, 0, "Última semana")
+                popupMenu.menu.add(0, 2, 0, "Último mes")
+                popupMenu.menu.add(0, 3, 0, "Últimos 6 meses")
+
+                popupMenu.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        1 -> filterHistoryByTime(7)    // Última semana
+                        2 -> filterHistoryByTime(30)   // Último mes
+                        3 -> filterHistoryByTime(180)  // Últimos 6 meses
+                    }
+                    true
+                }
+                popupMenu.show()
+            }
         }
     }
 
@@ -222,6 +241,7 @@ class HistoryActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun applyFilters() {
+
         var filteredList = completeHistoryList
 
         // Filtrar por restaurante si está seleccionado

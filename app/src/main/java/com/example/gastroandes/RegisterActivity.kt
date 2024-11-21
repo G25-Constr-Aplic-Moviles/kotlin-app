@@ -96,7 +96,7 @@ class RegisterActivity : AppCompatActivity() {
                 else -> if (isNetworkAvailable()) {viewModel.registerUser(firstName, lastName, email, password)} else {
                     Toast.makeText(
                         this,
-                        "Por favor, verifica tu conexión a Internet e inténtalo nuevamente más tarde",
+                        "No hay conexión a Internet. Intenta más tarde.",
                         Toast.LENGTH_LONG
                     ).show()
                 }
