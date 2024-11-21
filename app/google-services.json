@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "836633617432",
+    "project_id": "gastroandes-f8f9a",
+    "storage_bucket": "gastroandes-f8f9a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836633617432:android:bfe7554069895451cc0f6d",
+        "android_client_info": {
+          "package_name": "com.example.gastroandes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCeV1hwccxrlPh-laUKKFTxyud1k2sqyI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -23,43 +23,40 @@ class CreateReviewActivity : AppCompatActivity() {
 
     private lateinit var reviewInput: EditText
     private lateinit var addReviewButton: Button
-    private lateinit var starRating: LinearLayout // Para manejar las estrellas de calificación
-    private var rating: Float = 0f // Calificación seleccionada
+    private lateinit var starRating: LinearLayout
+    private var rating: Float = 0f
+    private var restaurantId: Int = -1
 
-    private var restaurantId: Int = -1 // Inicializar con un valor por defecto
+    companion object {
+        // Almacena la reseña temporalmente
+        private var cachedReview: HashMap<String, Any> = hashMapOf()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.resenas_v11)
 
-        // Obtener el Intent que inició esta actividad
-        val intent = intent
-        // Cambia a getIntExtra para recibir el ID como un Int
-        restaurantId = intent.getIntExtra("RESTAURANT_ID", -1) // -1 es el valor por defecto si no se encuentra
-
-        // Asegúrate de verificar que restaurantId no sea -1 antes de continuar
+        // Obtener ID de restaurante y configuración inicial
+        restaurantId = intent.getIntExtra("RESTAURANT_ID", -1)
         if (restaurantId == -1) {
             Toast.makeText(this, "Error al obtener el ID del restaurante", Toast.LENGTH_SHORT).show()
-            finish() // Termina la actividad si no se recibió correctamente
+            finish()
             return
         }
 
-
+        // Inicializa vistas
         val btnBack = findViewById<ImageView>(R.id.back_button)
-        btnBack.setOnClickListener {
-            finish() // Cierra la actividad actual y regresa a la anterior
-        }
-
+        btnBack.setOnClickListener { finish() }
         reviewInput = findViewById(R.id.review_input)
         addReviewButton = findViewById(R.id.add_review_button)
         starRating = findViewById(R.id.star_rating)
-
-        // Configura las estrellas de calificación
         setupStarRating()
 
-        addReviewButton.setOnClickListener {
-            addReview()
-        }
+        // Configura el botón de agregar reseña
+        addReviewButton.setOnClickListener { addReview() }
+
+        // Cargar reseña en caché, si está disponible
+        loadCachedReview()
     }
 
     private fun setupStarRating() {
@@ -82,13 +79,13 @@ class CreateReviewActivity : AppCompatActivity() {
     private fun addReview() {
         val content = reviewInput.text.toString()
 
-        // Check for network availability
         if (!isNetworkAvailable()) {
-            Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
-            return // Exit the function if there's no connection
+            // Guardar la reseña en caché temporalmente
+            cacheReview(content, rating)
+            Toast.makeText(this, "No hay conexión. Reseña guardada en caché.", Toast.LENGTH_LONG).show()
+            return
         }
 
-        // Validate that both content and rating are provided
         if (content.isBlank()) {
             Toast.makeText(this, "Por favor ingresa el texto de la reseña.", Toast.LENGTH_SHORT).show()
             return
@@ -102,11 +99,8 @@ class CreateReviewActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
-                // Get user information
                 val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
                 val userId = userInfo.id
-
-                // Create the Review object
                 val timestamp = System.currentTimeMillis()
                 val review = Review(
                     content = content,
@@ -116,11 +110,10 @@ class CreateReviewActivity : AppCompatActivity() {
                     timestamp = timestamp.toString()
                 )
 
-                // Call the API to add the review
                 RetrofitInstance.reviewApi.addReview(review)
-
+                clearCachedReview() // Borra la caché si la reseña se envía correctamente
                 Toast.makeText(this@CreateReviewActivity, "Reseña agregada con éxito", Toast.LENGTH_SHORT).show()
-                finish() // Close the activity after adding the review
+                finish()
 
             } catch (e: HttpException) {
                 Toast.makeText(this@CreateReviewActivity, "Error de red: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -147,5 +140,25 @@ class CreateReviewActivity : AppCompatActivity() {
         }
     }
 
+    private fun cacheReview(content: String, rating: Float) {
+        cachedReview["content"] = content
+        cachedReview["rating"] = rating
+    }
 
+    private fun loadCachedReview() {
+        // Verifica si hay una reseña en caché
+        val cachedContent = cachedReview["content"] as? String
+        val cachedRating = cachedReview["rating"] as? Float
+
+        if (cachedContent != null && cachedRating != null) {
+            reviewInput.setText(cachedContent)
+            rating = cachedRating
+            updateStarIcons((cachedRating - 1).toInt())
+            Toast.makeText(this, "Reseña cargada desde la caché", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun clearCachedReview() {
+        cachedReview.clear() // Limpia el HashMap cuando se envía exitosamente la reseña
+    }
 }
