@@ -10,7 +10,8 @@ data class Restaurante(
     val menu_ids: List<Int>,
     val average_rating: Double,
     val total_reviews: Int,
-    val image_url: String
+    val image_url: String,
+    var local_image_path: String? = null // Nueva propiedad para la imagen en caché
 )
 
 data class Location(
