@@ -54,8 +54,30 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Encuentra el botón de añadir reseña
         val btnAddResenia = findViewById<ImageButton>(R.id.btn_add_resenia)
+        val btnMenu = findViewById<Button>(R.id.menu_button)
 
         val restaurantId = intent.getIntExtra("RESTAURANTE_ID", 1)
+
+        btnMenu.setOnClickListener {
+            if (isNetworkAvailable()) {
+                val restaurantName = viewModel.restaurant.value?.name ?: "Nombre del Restaurante"
+                val restaurantId = intent.getIntExtra("RESTAURANTE_ID", 1)
+                val restaurantImageUrl = viewModel.restaurant.value?.image_url ?: ""
+
+                // Crea un Intent para iniciar RestaurantMenuActivity
+                val intent = RestaurantMenuActivity.newIntent(this, restaurantName, restaurantImageUrl)
+                intent.putExtra("RESTAURANT_ID", restaurantId)
+                startActivity(intent)
+            } else {
+                Toast.makeText(
+                    this,
+                    "No hay conexión a Internet. Intenta más tarde.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+
 
         // Configura el listener para el botón
         btnAddResenia.setOnClickListener {
