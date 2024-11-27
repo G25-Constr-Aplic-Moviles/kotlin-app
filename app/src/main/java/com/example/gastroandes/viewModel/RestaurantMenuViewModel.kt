@@ -3,22 +3,24 @@ package com.example.gastroandes.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.gastroandes.model.MenuItem
+import com.example.gastroandes.network.RetrofitInstance
+import kotlinx.coroutines.launch
 
 class RestaurantMenuViewModel : ViewModel() {
     private val _menuItems = MutableLiveData<List<MenuItem>>()
     val menuItems: LiveData<List<MenuItem>> = _menuItems
 
-    init {
-        loadMenuItems()
-    }
-
-    private fun loadMenuItems() {
-        // In a real app, you might load this data from a repository or API
-        val items = listOf(
-            MenuItem(1, 1, "Japanese dish", "Delicioso sushi roll", 50000.0F, "https://example.com/sushi_roll.jpg" )
-        )
-        _menuItems.value = items
+    fun loadMenuItems(restaurantId: Int) {
+        viewModelScope.launch {
+            try {
+                val items = RetrofitInstance.api.getMenuItemByRestaurant(restaurantId)
+                _menuItems.value = items
+            } catch (e: Exception) {
+                _menuItems.value = emptyList() // Manejar error y actualizar la UI si falla la carga
+            }
+        }
     }
 }
 

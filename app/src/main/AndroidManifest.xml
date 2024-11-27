@@ -24,6 +24,9 @@
             android:name=".RestaurantListActivity"
             android:exported="true"/>
         <activity
+            android:name=".DishDetailActivity"
+            android:exported="true"/>
+        <activity
             android:name=".CreateReviewActivity"
             android:exported="true"/>
         <meta-data
