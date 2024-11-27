@@ -1,5 +1,6 @@
 package com.example.gastroandes
 
+import android.content.Context
 import android.util.Log
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -7,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import com.google.gson.Gson
+import com.example.gastroandes.model.MenuItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -14,11 +17,14 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import com.bumptech.glide.Glide
 
 class DishDetailActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "DishDetailActivity"
+        private const val SHARED_PREFS_NAME = "GastroAndesPrefs"
+        private const val SELECTED_DISH_KEY = "selected_dish"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,39 +33,66 @@ class DishDetailActivity : AppCompatActivity() {
 
         Log.d(TAG, "DishDetailActivity created")
 
-        // Obtener los datos del Intent
-        val dishName = intent.getStringExtra("DISH_NAME")
-        val dishDescription = intent.getStringExtra("DISH_DESCRIPTION")
-        val dishPrice = intent.getFloatExtra("DISH_PRICE", 0.0f)
-        val dishImageUrl = intent.getStringExtra("DISH_IMAGE_URL")
+        // Intenta recuperar los datos del plato desde SharedPreferences
+        val sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE)
+        val gson = Gson()
+        val dishJson = sharedPreferences.getString(SELECTED_DISH_KEY, null)
 
-        Log.d(TAG, "Received data: name=$dishName, description=$dishDescription, price=$dishPrice, imageUrl=$dishImageUrl")
-
-        // Actualizar la UI con los datos del plato
-        if (dishName != null) {
-            findViewById<TextView>(R.id.dish_name).text = dishName
+        val dish: MenuItem? = if (dishJson != null) {
+            gson.fromJson(dishJson, MenuItem::class.java)
         } else {
-            Log.e(TAG, "Dish name is null")
+            // Si no hay datos en SharedPreferences, usa los datos del Intent
+            Log.w(TAG, "No dish data in SharedPreferences, falling back to Intent data")
+            getDishFromIntent()
         }
 
-        if (dishDescription != null) {
-            findViewById<TextView>(R.id.dish_description).text = dishDescription
+        if (dish != null) {
+            updateUIWithDish(dish)
         } else {
-            Log.e(TAG, "Dish description is null")
-        }
-
-        findViewById<TextView>(R.id.dish_price).text = "$${dishPrice}"
-
-        // Cargar la imagen desde la URL
-        if (dishImageUrl != null) {
-            loadImageFromUrl(dishImageUrl)
-        } else {
-            Log.e(TAG, "Dish image URL is null")
+            Log.e(TAG, "Dish data is null, cannot update UI")
         }
 
         // Configurar el botón de regreso
         findViewById<ImageView>(R.id.back_button).setOnClickListener {
             finish() // Cierra la actividad y regresa a la anterior
+        }
+    }
+
+    private fun getDishFromIntent(): MenuItem? {
+        val dishName = intent.getStringExtra("DISH_NAME")
+        val dishDescription = intent.getStringExtra("DISH_DESCRIPTION")
+        val dishPrice = intent.getFloatExtra("DISH_PRICE", 0.0f)
+        val dishImageUrl = intent.getStringExtra("DISH_IMAGE_URL")
+
+        return if (dishName != null && dishDescription != null && dishImageUrl != null) {
+            MenuItem(
+                item_id = 0, // Si el ID no es importante en este caso
+                restaurant_id = 0, // Puedes asignar un valor predeterminado si no es necesario
+                name = dishName,
+                description = dishDescription,
+                price = dishPrice,
+                image_url = dishImageUrl
+            )
+        } else {
+            null
+        }
+    }
+
+    private fun updateUIWithDish(dish: MenuItem) {
+        Log.d(TAG, "Updating UI with dish data: $dish")
+
+        findViewById<TextView>(R.id.dish_name).text = dish.name
+        findViewById<TextView>(R.id.dish_description).text = dish.description
+
+        // Formatear el precio sin decimales
+        val formattedPrice = String.format("%,.0f", dish.price)
+        findViewById<TextView>(R.id.dish_price).text = "$$formattedPrice"
+
+        // Cargar la imagen desde la URL
+        if (dish.image_url != null) {
+            loadImageFromUrl(dish.image_url)
+        } else {
+            Log.e(TAG, "Dish image URL is null")
         }
     }
 
