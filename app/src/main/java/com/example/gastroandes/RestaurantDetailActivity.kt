@@ -33,6 +33,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -279,7 +280,6 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun updateMenuItemsUI(menuItems: List<MenuItem>) {
         // Referencias a los elementos de la UI
-
         val dish1 = findViewById<CardView>(R.id.dish1)
         val dish2 = findViewById<CardView>(R.id.dish2)
         val dish3 = findViewById<CardView>(R.id.dish3)
@@ -305,6 +305,9 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                 image1.setImageBitmap(bitmap)
             }
             dish1.visibility = View.VISIBLE
+            dish1.setOnClickListener {
+                openDishDetailActivity(item1)
+            }
         } else {
             dish1.visibility = View.GONE
         }
@@ -317,6 +320,9 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                 image2.setImageBitmap(bitmap)
             }
             dish2.visibility = View.VISIBLE
+            dish2.setOnClickListener {
+                openDishDetailActivity(item2)
+            }
         } else {
             dish2.visibility = View.GONE
         }
@@ -329,10 +335,28 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                 image3.setImageBitmap(bitmap)
             }
             dish3.visibility = View.VISIBLE
+            dish3.setOnClickListener {
+                openDishDetailActivity(item3)
+            }
         } else {
             dish3.visibility = View.GONE
         }
     }
+
+    private fun openDishDetailActivity(dish: MenuItem) {
+        // Guarda el plato seleccionado en SharedPreferences
+        val sharedPreferences = getSharedPreferences("GastroAndesPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+        val dishJson = gson.toJson(dish)
+        editor.putString("selected_dish", dishJson)
+        editor.apply()
+
+        // Abre DishDetailActivity
+        val intent = Intent(this, DishDetailActivity::class.java)
+        startActivity(intent)
+    }
+
 
     private fun formatPrice(price: Float): String {
         val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
