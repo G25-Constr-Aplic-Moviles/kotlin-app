@@ -28,6 +28,7 @@ class RestaurantMenuActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var menuAdapter: RestaurantMenuAdapter
     private var restaurantId: Int = 0 // Variable para almacenar el ID del restaurante
+    private var isAscending: Boolean = true // Orden ascendente inicial
 
     companion object {
         private const val EXTRA_RESTAURANT_NAME = "extra_restaurant_name"
@@ -71,12 +72,31 @@ class RestaurantMenuActivity : AppCompatActivity() {
             menuAdapter.submitList(menuItems)
         }
 
-        // Llamar al ViewModel para cargar los ítems del menú
+        // Cargar los ítems del menú y ordenarlos inicialmente
         viewModel.loadMenuItems(restaurantId)
+        viewModel.sortMenuItemsByPrice(isAscending) // Ordenar ascendente inicialmente
 
+        // Configurar el botón de filtro
+        val filterButton = findViewById<ImageView>(R.id.menuButton)
+        filterButton.setImageResource(if (isAscending) R.drawable.ic_sort_ascending else R.drawable.ic_sort_descending) // Imagen inicial
+
+        filterButton.setOnClickListener {
+            toggleSortOrder(filterButton)
+        }
+
+        // Botón de regreso
         findViewById<ImageButton>(R.id.backButton).setOnClickListener {
             finish()
         }
+    }
+
+    private fun toggleSortOrder(filterButton: ImageView) {
+        isAscending = !isAscending // Cambia el estado de orden
+        viewModel.sortMenuItemsByPrice(isAscending) // Actualiza los datos en el ViewModel
+
+        // Cambia la imagen del botón según el estado actual
+        val imageRes = if (isAscending) R.drawable.ic_sort_ascending else R.drawable.ic_sort_descending
+        filterButton.setImageResource(imageRes)
     }
 
     private fun loadImageFromUrl(url: String, callback: (Bitmap?) -> Unit) {

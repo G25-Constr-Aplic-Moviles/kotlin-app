@@ -22,6 +22,11 @@ class RestaurantMenuViewModel : ViewModel() {
             }
         }
     }
+
+    fun sortMenuItemsByPrice(ascending: Boolean) {
+        val sortedList = _menuItems.value?.sortedBy { it.price }
+        _menuItems.value = if (ascending) sortedList else sortedList?.reversed()
+    }
 }
 
 data class RestaurantMenuItem(val name: String, val price: String, val imageResId: Int)
