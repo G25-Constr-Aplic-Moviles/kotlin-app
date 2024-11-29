@@ -2,6 +2,7 @@ import android.util.Log
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.icu.text.NumberFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,7 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Locale
 
 class RestaurantMenuAdapter : ListAdapter<MenuItem, RestaurantMenuAdapter.DishViewHolder>(DishDiffCallback()) {
 
@@ -47,7 +49,7 @@ class RestaurantMenuAdapter : ListAdapter<MenuItem, RestaurantMenuAdapter.DishVi
             Log.d(TAG, "Binding data for dish: ${dish.name}")
 
             dishName.text = dish.name
-            dishPrice.text = dish.price.toString()
+            dishPrice.text = formatPrice(dish.price)
 
             // Cargar la imagen desde la URL usando corutinas
             loadImageFromUrl(dish.image_url) { bitmap ->
@@ -69,6 +71,12 @@ class RestaurantMenuAdapter : ListAdapter<MenuItem, RestaurantMenuAdapter.DishVi
                 }
                 itemView.context.startActivity(intent)
             }
+        }
+
+        private fun formatPrice(price: Float): String {
+            val formatter = NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+            formatter.maximumFractionDigits = 0
+            return formatter.format(price)
         }
 
         private fun loadImageFromUrl(url: String, callback: (Bitmap?) -> Unit) {
@@ -101,4 +109,5 @@ class RestaurantMenuAdapter : ListAdapter<MenuItem, RestaurantMenuAdapter.DishVi
             return oldItem == newItem
         }
     }
+
 }

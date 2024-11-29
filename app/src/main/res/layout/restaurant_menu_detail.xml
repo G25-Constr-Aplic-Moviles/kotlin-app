@@ -36,12 +36,12 @@
         app:layout_constraintTop_toBottomOf="@id/restaurantHeaderImage"
         tools:text="Yamato sushi $$$$" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/menuButton"
-        android:layout_width="48dp"
+        android:layout_width="38dp"
         android:layout_height="48dp"
-        android:layout_margin="16dp"
-        android:background="@android:drawable/ic_menu_more"
+        android:layout_margin="33dp"
+        android:src="@drawable/ic_sort_ascending"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/restaurantHeaderImage" />
 
