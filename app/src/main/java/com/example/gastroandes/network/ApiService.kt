@@ -16,6 +16,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
+import com.example.gastroandes.network.TimeData as TimeData
 
 data class TimeData(
     val tiempo: Double,
@@ -65,6 +66,9 @@ interface ApiService {
     @POST("/add_date_review_access")
     fun sendTime(@Body timeDate: TimeDataReview): Call<Void>
 
+    // Método para el servicio de analíticas
+    @POST("/add_time_dish")
+    fun sendTimeDish(@Body timeDate: TimeData): Call<Void>
     // Métodos para el servicio de historial
     @POST("/history/add")
     suspend fun addEntry(@Body historyEntry: HistoryEntry)
