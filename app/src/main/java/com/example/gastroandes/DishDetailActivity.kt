@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.example.gastroandes.model.MenuItem
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,12 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import com.bumptech.glide.Glide
+import com.example.gastroandes.model.SessionManager
+import com.example.gastroandes.network.RetrofitInstance
+import com.example.gastroandes.network.TimeData
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class DishDetailActivity : AppCompatActivity() {
 
@@ -109,6 +116,38 @@ class DishDetailActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading image from URL: $url", e)
+            }
+        }
+    }
+
+    private fun sendLoadingTimeToAnalytics() {
+        val startTime = intent.getLongExtra("startTime", 0)
+        val endTime = System.currentTimeMillis()
+        val loadingTime = (endTime - startTime) / 1000.0
+        Log.d("LoadingTime", "Tiempo de carga: $loadingTime segundos")
+
+        lifecycleScope.launch {
+            try {
+                val token = SessionManager.getAuthToken()
+                val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                val userId = userInfo.id
+                val timeData = TimeData(tiempo = loadingTime, plataforma = "Kotlin", userID = userId)
+
+                RetrofitInstance.analyticsApi.sendTimeDish(timeData).enqueue(object : Callback<Void> {
+                    override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                        if (response.isSuccessful) {
+                            Log.d("Analytics", "Tiempo de carga enviado correctamente")
+                        } else {
+                            Log.e("Analytics", "Error en el servidor: ${response.errorBody()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<Void>, t: Throwable) {
+                        Log.e("Analytics", "Fallo al enviar el tiempo de carga", t)
+                    }
+                })
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

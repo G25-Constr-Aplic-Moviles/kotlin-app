@@ -65,9 +65,11 @@ class RestaurantDetailActivity : AppCompatActivity(), OnMapReadyCallback {
                 val restaurantId = intent.getIntExtra("RESTAURANTE_ID", 1)
                 val restaurantImageUrl = viewModel.restaurant.value?.image_url ?: ""
 
+                val startTime = System.currentTimeMillis()
                 // Crea un Intent para iniciar RestaurantMenuActivity
                 val intent = RestaurantMenuActivity.newIntent(this, restaurantName, restaurantImageUrl)
                 intent.putExtra("RESTAURANT_ID", restaurantId)
+                intent.putExtra("startTime", startTime)
                 startActivity(intent)
             } else {
                 Toast.makeText(
