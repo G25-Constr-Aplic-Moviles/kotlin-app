@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import com.example.gastroandes.network.RetrofitInstance
 import com.example.gastroandes.model.Review
-
+import androidx.collection.ArrayMap
 
 class CreateReviewActivity : AppCompatActivity() {
 
@@ -28,15 +28,15 @@ class CreateReviewActivity : AppCompatActivity() {
     private var restaurantId: Int = -1
 
     companion object {
-        // Almacena la reseña temporalmente
-        private var cachedReview: HashMap<String, Any> = hashMapOf()
+        // Replace HashMap with ArrayMap for better memory efficiency
+        private var cachedReview: ArrayMap<String, Any> = ArrayMap()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.resenas_v11)
 
-        // Obtener ID de restaurante y configuración inicial
+        // Same initialization code as before
         restaurantId = intent.getIntExtra("RESTAURANT_ID", -1)
         if (restaurantId == -1) {
             Toast.makeText(this, "Error al obtener el ID del restaurante", Toast.LENGTH_SHORT).show()
@@ -44,18 +44,14 @@ class CreateReviewActivity : AppCompatActivity() {
             return
         }
 
-        // Inicializa vistas
         val btnBack = findViewById<ImageView>(R.id.back_button)
         btnBack.setOnClickListener { finish() }
         reviewInput = findViewById(R.id.review_input)
         addReviewButton = findViewById(R.id.add_review_button)
         starRating = findViewById(R.id.star_rating)
         setupStarRating()
-
-        // Configura el botón de agregar reseña
         addReviewButton.setOnClickListener { addReview() }
 
-        // Cargar reseña en caché, si está disponible
         loadCachedReview()
     }
 
@@ -146,7 +142,7 @@ class CreateReviewActivity : AppCompatActivity() {
     }
 
     private fun loadCachedReview() {
-        // Verifica si hay una reseña en caché
+        // Loading from ArrayMap
         val cachedContent = cachedReview["content"] as? String
         val cachedRating = cachedReview["rating"] as? Float
 
