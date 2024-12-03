@@ -23,6 +23,8 @@ import com.example.gastroandes.network.RetrofitInstance
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -41,6 +43,7 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var completeHistoryList: List<UserHistoryEntry>
     private var selectedRestaurant: String? = null
     private var selectedTimeRange: Long? = null
+    private val restaurantCache = android.util.ArrayMap<Int, String>()
 
 
 
@@ -90,39 +93,42 @@ class HistoryActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun fetchUserHistory() {
-        // Check for network availability before making the network request
         if (!isNetworkAvailable()) {
             Toast.makeText(this, "No hay conexión a Internet. Intenta más tarde.", Toast.LENGTH_LONG).show()
-            return // Exit the method if there's no connection
+            return
         }
 
         val token = SessionManager.getAuthToken()
         CoroutineScope(Dispatchers.IO).launch {
-            val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
-            val userId = userInfo.id
             try {
+                val userInfo = RetrofitInstance.usersApi.getUserInfo("Bearer $token")
+                val userId = userInfo.id
                 val historyList = RetrofitInstance.historyApi.getUserHistory(userId)
 
-                for (entry in historyList) {
-                    if(isNetworkAvailable()) {
-                        try {
-                            val restaurantDetail =
-                                RetrofitInstance.api.getRestauranteDetail(entry.restaurant_id.toInt())
-                            entry.restaurantName = restaurantDetail.name
-                            restaurantNames.add(restaurantDetail.name)
-                        } catch (e: Exception) {
-                            Log.e("HistoryActivity", "Error al cargar el historial 2", e)
+                // Usa async para hacer peticiones paralelas
+                val deferredDetails = historyList.map { entry ->
+                    async {
+                        val restaurantId = entry.restaurant_id.toInt()
+                        if (restaurantCache.containsKey(restaurantId)) {
+                            entry.restaurantName = restaurantCache[restaurantId]
+                        } else {
+                            try {
+                                val restaurantDetail = RetrofitInstance.api.getRestauranteDetail(restaurantId)
+                                entry.restaurantName = restaurantDetail.name
+                                // Guardar en el cache
+                                restaurantCache[restaurantId] = restaurantDetail.name
+                                restaurantNames.add(restaurantDetail.name)
+                            } catch (e: Exception) {
+                                Log.e("HistoryActivity", "Error al cargar detalles del restaurante", e)
+                            }
                         }
                     }
-                    else{ // Mostrar mensaje de error específico cuando no hay conexión a Internet
-                        Toast.makeText(
-                            this@HistoryActivity,
-                            "No hay conexión a Internet. Intenta más tarde.",
-                            Toast.LENGTH_LONG
-                        ).show() }
                 }
 
-                // Ordenar en orden descendente basándonos en el timestamp formateado
+                // Espera a que todas las tareas asíncronas terminen
+                deferredDetails.awaitAll()
+
+                // Ordenar la lista por timestamp
                 val sortedHistoryList = historyList.sortedByDescending { entry ->
                     convertFormattedTimestampToMillis(entry.timestamp)
                 }
@@ -137,12 +143,12 @@ class HistoryActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("HistoryActivity", "Error al cargar el historial del usuario", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@HistoryActivity, "Error al cargar el historial. Revisa tu conexion", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@HistoryActivity, "Error al cargar el historial. Revisa tu conexión", Toast.LENGTH_SHORT).show()
                 }
             }
         }
-
     }
+
 
 
     // Función para convertir el timestamp con varios formatos a milisegundos
